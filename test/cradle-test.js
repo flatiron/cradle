@@ -63,18 +63,50 @@ vows.tell("Cradle", {
         setup: function () {
             cradle.setup({
                 host: "http://cloudhead.io",
-                port: 4242
+                port: 4242,
+                milk: 'white'
             });
             return new(cradle.Connection);
         },
         "should be carried on to new Connections": function (c) {
             assert.equal(c.host, "http://cloudhead.io");
             assert.equal(c.port, 4242);
+            assert.equal(c.options.milk, 'white');
+            assert.equal(c.options.cache, true);
+        },
+        "with just a {} passed to a new Connection object": {
+            setup: function () { return new(cradle.Connection)({milk: 'green'}) },
+            "should override the defaults": function (c) {
+                assert.equal(c.options.milk, 'green');
+                assert.equal(c.port, 4242);
+            }
+        },
+        "with a host and port passed to Connection": {
+            setup: function () { return new(cradle.Connection)("255.255.0.0", 9696) },
+            "should override the defaults": function (c) {
+                assert.equal(c.host, '255.255.0.0');
+                assert.equal(c.port, 9696);
+            }
+        },
+        "with a host and port passed as a string to Connection": {
+            setup: function () { return new(cradle.Connection)("8.8.8.8:4141") },
+            "should override the defaults": function (c) {
+                assert.equal(c.host, '8.8.8.8');
+                assert.equal(c.port, 4141);
+            }
+        },
+        "with a host, port and options passed to Connection": {
+            setup: function () { return new(cradle.Connection)("4.4.4.4", 911, {raw: true}) },
+            "should override the defaults": function (c) {
+                assert.equal(c.host, '4.4.4.4');
+                assert.equal(c.port, 911);
+                assert.equal(c.options.raw, true);
+            }
         }
     },
     "A Cradle connection": {
         setup: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984);
+            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "queried for information": {
             setup: function (c) { return c.info() },
