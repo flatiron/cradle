@@ -170,7 +170,29 @@ vows.tell("Cradle", {
                 },
                 "without an id (POST)": {}
             },
-            "bulk inserting documents": {
+            "calling save() with an array": {
+                setup: function (db) {
+                    return db.save([{_id: 'tom'}, {_id: 'flint'}]);
+                },
+                "returns an array of document ids and revs": function (res) {
+                    assert.equal(res[0].id, 'tom');
+                    assert.equal(res[1].id, 'flint');
+                },
+                "should bulk insert the documents": {
+                    setup: function (res, db) {
+                        var promise = new(events.Promise);
+                        db.get('tom')(function (tom) {
+                            db.get('flint')(function (flint) {
+                                promise.emitSuccess(tom, flint);
+                            });
+                        });
+                        return promise;
+                    },
+                    "which can then be retrieved": function (tom, flint) {
+                        assert.ok(tom._id);
+                        assert.ok(flint._id);
+                    }
+                }
             },
             "getting all documents": {
                 setup: function (db) {
