@@ -59,7 +59,6 @@ vows.tell("Cradle", {
             }
         });
         r('PUT', '/pigs/mike', {color: 'pink'});
-        r('PUT', '/rabbits/bruno', {color: 'pink'});
         r('PUT', '/rabbits/alex', {color: 'blue'});
         r('PUT', '/pigs/bill', {color: 'blue'}).wait();
     },
@@ -114,22 +113,20 @@ vows.tell("Cradle", {
     //
     "A Cradle connection (cache)": {
         setup: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: true});
+            return new(cradle.Connection)('127.0.0.1', 5984, {cache: true}).database('pigs');
         },
         "save()": {
-            setup: function (c) {
+            setup: function (db) {
                 var promise = new(events.Promise);
-                var db = c.database('rabbits');
-                db.save('bob', {color: 'orange'}).addCallback(function () {
-                    promise.emitSuccess(db);
-                });
+                db.save('bob', {color: 'orange'})
+                  .addCallback(function () { promise.emitSuccess(db) });
                 return promise;
             },
             "should write through the cache": function (db) {
                 assert.ok(db.cache.has('bob'));
             },
             "and": {
-                setup: function (db, c) {
+                setup: function (db) {
                     return db.save('bob', {size: 12});
                 },
                 "return a 201": status(201),
@@ -139,13 +136,25 @@ vows.tell("Cradle", {
             }
         },
         "remove()": {
-            setup: function (c) {
-                var db = c.database('rabbits');
-                return db.save('bruno');
+            setup: function (db) {
+                var promise = new(events.Promise);
+                db.save('bruno', {}).addCallback(function () {
+                    promise.emitSuccess(db);
+                });
+                return promise;
             },
-            "should purge the cache from that document": function (db) {
-            
-            
+            "shouldn't ask for a revision": {
+                setup: function (db) {
+                    var promise = new(events.Promise);
+                    db.remove('bruno').addCallback(function () { promise.emitSuccess(db) });
+                    return promise;
+                },
+                "and should purge the cache": function (db) {
+                    assert.equal(db.cache.has('bruno'), false);
+                },
+                "and raise an exception if you use remove() without a rev": function (db) {
+                    //assert.throws(db.remove('bruno'), Error);
+                }
             }
         }
     },
