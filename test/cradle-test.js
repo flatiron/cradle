@@ -10,8 +10,6 @@ require.paths.unshift(path.join(__dirname, '..', 'lib'),
 var vows = require('vows'),
     cradle = require('cradle');
 
-vows.options.Emitter = cradle.Promise;
-
 function status(code) {
     return function (res) {
         assert.equal(res._headers.status, code);
