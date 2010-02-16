@@ -8,14 +8,14 @@ introduction
 
 Cradle is an asynchronous javascript client for [CouchDB](http://couchdb.apache.org).
 It is somewhat higher-level than most other CouchDB clients, requiring a little less knowledge of CouchDB's REST API.
-Cradle also has built-in write-through caching, giving you an extra level of speed.
+Cradle also has built-in write-through caching, giving you an extra level of speed, and making document _updates_ and _deletion_ easier.
 Cradle was built from the love of CouchDB and Node.js, and tries to make the most out of this wonderful marriage of technologies. 
 
 philosophy
 ----------
 
 The key concept here is the common ground shared by CouchDB and Node.js, that is, _javascript_. The other important aspect of this marriage is the asynchronous behaviors of both these technologies. Cradle tries to make use of these symmetries, whenever it can.
-Cradle's API, although closely knit with CouchDB's, isn't overly so. Whenever the API can be abstracted in a friendlier, simpler way, that's the route it take. So even though a large part of the Cradle <--> CouchDB mappings are one to one, some Cradle functions, such as `save()`, can perform more than one operation, depending on how it's used.
+Cradle's API, although closely knit with CouchDB's, isn't overly so. Whenever the API can be abstracted in a friendlier, simpler way, that's the route it takes. So even though a large part of the `Cradle <--> CouchDB` mappings are one to one, some Cradle functions, such as `save()`, can perform more than one operation, depending on how they are used.
 
 synopsis
 --------
