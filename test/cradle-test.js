@@ -59,6 +59,8 @@ vows.tell("Cradle", {
             }
         });
         r('PUT', '/pigs/mike', {color: 'pink'});
+        r('PUT', '/rabbits/bruno', {color: 'pink'});
+        r('PUT', '/rabbits/alex', {color: 'blue'});
         r('PUT', '/pigs/bill', {color: 'blue'}).wait();
     },
     "Default connection settings": {
@@ -106,7 +108,61 @@ vows.tell("Cradle", {
             }
         }
     },
-    "A Cradle connection": {
+
+    //
+    // Cache
+    //
+    "A Cradle connection (cache)": {
+        setup: function () {
+            return new(cradle.Connection)('127.0.0.1', 5984, {cache: true});
+        },
+        "save()": {
+            setup: function (c) {
+                var promise = new(events.Promise);
+                var db = c.database('rabbits');
+                db.save('bob', {color: 'orange'}).addCallback(function () {
+                    promise.emitSuccess(db);
+                });
+                return promise;
+            },
+            "should write through the cache": function (db) {
+                assert.ok(db.cache.has('bob'));
+            },
+            "and": {
+                setup: function (db, c) {
+                    return db.save('bob', {size: 12});
+                },
+                "return a 201": status(201),
+                "allow an overwrite": function (res) {
+                   assert.match(res.rev, /^2/);
+                }
+            }
+        },
+        "remove()": {
+            setup: function (c) {
+                var db = c.database('rabbits');
+                return db.save('bruno');
+            },
+            "should purge the cache from that document": function (db) {
+            
+            
+            }
+        }
+    },
+    "A connection with continuation passing style": {
+        setup: function () {
+            var promise = new(events.Promise);
+            var c = new(cradle.Connection)({usePromises: false});
+            c.database('badgers').save('robin', {})(function (res) {
+                promise.emitSuccess(res); 
+            });
+            return promise;
+        },
+        "should send requests one after the other": function (res) {
+            assert.ok(res.ok);
+        }
+    },
+    "A Cradle connection (no-cache)": {
         setup: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
@@ -115,7 +171,6 @@ vows.tell("Cradle", {
 
             "returns a 200": status(200),
             "returns the version number": function (info) {
-                //sys.debug(sys.inspect(info))
                 assert.ok(info);
                 assert.match(info.version, /\d+\.\d+\.\d+/);
             }
@@ -160,8 +215,8 @@ vows.tell("Cradle", {
                     assert.equal(res.id, 'mike');
                 }
             },
-            "inserting a document": {
-                "with an id (PUT)": {
+            "save() with an id and document": {
+                "should PUT the document, with the id": {
                     setup: function (db) {
                         return db.save('joe', {gender: 'male'});
                     },
@@ -171,6 +226,29 @@ vows.tell("Cradle", {
                     }
                 },
                 "without an id (POST)": {}
+            },
+            "save() with a _design id": {
+                "should save the doc as a design": {
+                    setup: function (db) {
+                        return db.save('_design/horses', {
+                            all: {
+                                map: function (doc) {
+                                    if (doc.speed == 72) emit(null, doc);
+                                }
+                            }
+                        });
+                    },
+                    "returns a 201": status(201),
+                    "returns the revision": function (res) {
+                        assert.ok(res.rev);
+                    },
+                    "which can be queried": {
+                        setup: function (res, db) {
+                            return db.view('horses/all');
+                        },
+                        "returns a 200": status(200)
+                    }
+                }
             },
             "calling save() with an array": {
                 setup: function (db) {
@@ -183,8 +261,8 @@ vows.tell("Cradle", {
                 "should bulk insert the documents": {
                     setup: function (res, db) {
                         var promise = new(events.Promise);
-                        db.get('tom')(function (tom) {
-                            db.get('flint')(function (flint) {
+                        db.get('tom').addCallback(function (tom) {
+                            db.get('flint').addCallback(function (flint) {
                                 promise.emitSuccess(tom, flint);
                             });
                         });
