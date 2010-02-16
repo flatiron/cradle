@@ -1,7 +1,7 @@
 cradle
 ======
 
-A homely CouchDB client for Node.js
+A high-level, caching, CouchDB client for Node.js
 
 introduction
 ------------
@@ -21,7 +21,7 @@ synopsis
 --------
 
     var cradle = require('cradle');
-    var db = new(cradle.Connection).database('StarWars');
+    var db = new(cradle.Connection).database('starwars');
     
     db.get('vador').addCallback(function (doc) {
         doc.name; // 'Darth Vador'
@@ -50,9 +50,9 @@ so getting the return value is a matter of chaining an `addCallback()` on to the
         raw: false
     });
 
-Defaults to `127.0.0.1:5984`
+_Defaults to `127.0.0.1:5984`_
 
-Note that this is equivalent to using `cradle.setup`:
+Note that you can also use `cradle.setup` to set a global configuration:
 
     cradle.setup({host: 'http://living-room.couch',
                   options: {cache: true, raw: false}});
@@ -61,18 +61,18 @@ Note that this is equivalent to using `cradle.setup`:
 
 ### creating a database ###
 
-    var db = c.database('StarWars');
+    var db = c.database('starwars');
     db.create();
 
 _You can check if a database exists with the `exists()` method._
 
-### fetching a document -- _GET_ ###
+### fetching a document _(GET)_ ###
 
     db.get('vador').addCallback(function (doc) {
         sys.puts(doc);
     });
 
-_If you want to get a specific revision for that document, you can pass it as the 2nd parameter._
+_If you want to get a specific revision for that document, you can pass it as the 2nd parameter to `get()`._
 
 ### Querying a view ###
 
@@ -87,7 +87,7 @@ _If you want to get a specific revision for that document, you can pass it as th
 
 All saving and updating can be done with the `save()` database method.
 
-#### with an id (PUT) ####
+#### with an id _(PUT)_ ####
 
     db.save('vador',{
         name: 'darth', force: 'dark'
@@ -95,7 +95,7 @@ All saving and updating can be done with the `save()` database method.
         // Success
     });
 
-#### without an id (POST) ####
+#### without an id _(POST)_ ####
 
     db.save({
         force: 'dark', name: 'Darth'
@@ -155,7 +155,7 @@ Here we create a design document named 'characters', with two views: 'all' and '
 
 These views can later be queried with `db.view('characters/all')`, for example.
 
-### removing documents ###
+### removing documents _(DELETE)_ ###
 
 To remove a document, you call the `remove()` method, passing the latest document revision.
 
@@ -166,6 +166,27 @@ To remove a document, you call the `remove()` method, passing the latest documen
 
 If `remove` is called without a revision, and the document was recently fetched from the database, it will attempt to use the cached document's revision, providing caching is enabled.
 
+Other API methods
+-----------------
 
+### CouchDB Server level ###
 
+    new(cradle.Connection).*
+
+- `databases()`: Get list of databases
+- `config()`: Get server config
+- `info()`: Get server information
+- `stats()`: Statistics overview
+- `activeTasks()`: Get list of currently active tasks
+- `uuids(count)`: Get _count_ list of UUIDs
+
+### database level ###
+
+    new(cradle.Connection).database('starwars').*
+
+- `info()`: Database information
+- `all()`: Get all documents
+- `allBySeq()`: Get all documents by sequence
+- `compact()`: Compact database
+- `viewCleanup()`: Cleanup old view data
 
