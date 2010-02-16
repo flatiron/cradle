@@ -44,6 +44,8 @@ function r(method, url, doc) {
     return promise;
 }
 
+cradle.setup({ usePromises: true });
+
 vows.tell("Cradle", {
     setup: function () {
         r('GET', '/_all_dbs').wait().forEach(function (db) {
