@@ -185,8 +185,9 @@ vows.tell("Cradle", {
         },
         "getting the list of databases": {
             setup: function (c) { return c.databases() },
-            "returns an empty list": function (dbs) {
-                assert.equal(dbs.length, 2);
+            "should contain the 'rabbits' and 'pigs' databases": function (dbs) {
+                assert.ok(dbs.indexOf('rabbits') >= 0 );
+                assert.ok(dbs.indexOf('pigs') >= 0 );
                 assert.ok(dbs instanceof Array);
             }
         },
