@@ -22,15 +22,15 @@ function r(method, url, doc) {
     var promise = new(events.Promise);
     var request = client.request(method, url, {});
 
-    if (doc) { request.sendBody(JSON.stringify(doc)) }
+    if (doc) { request.write(JSON.stringify(doc)) }
 
-    request.finish(function (res) {
+    request.addListener('response', function (res) {
         var body = '';
 
         res.setBodyEncoding('utf8');
-        res.addListener('body', function (chunk) {
+        res.addListener('data', function (chunk) {
             body += (chunk || '');
-        }).addListener('complete', function () {
+        }).addListener('end', function () {
             var obj, response;
 
             try { obj = JSON.parse(body) }
@@ -39,6 +39,7 @@ function r(method, url, doc) {
             promise.emitSuccess(obj);
         });
     });
+    request.close();
     return promise;
 }
 
