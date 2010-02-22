@@ -34,9 +34,9 @@ function r(method, url, doc) {
             var obj, response;
 
             try { obj = JSON.parse(body) }
-            catch (e) { return promise.emitError(e) }
+            catch (e) { return promise.emit('error', e) }
 
-            promise.emitSuccess(obj);
+            promise.emit('success', obj);
         });
     });
     request.close();
