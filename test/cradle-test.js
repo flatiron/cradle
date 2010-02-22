@@ -281,6 +281,16 @@ vows.tell("Cradle", {
                     }
                 }
             },
+            "calling save() with multiple documents": {
+                setup: function (db) {
+                    return db.save({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'});
+                },
+                "returns an array of document ids and revs": function (res) {
+                    assert.equal(res[0].id, 'pop');
+                    assert.equal(res[1].id, 'cap');
+                    assert.equal(res[2].id, 'ee');
+                }
+            },
             "getting all documents": {
                 setup: function (db) {
                     return db.all();
