@@ -9,7 +9,7 @@ introduction
 Cradle is an asynchronous javascript client for [CouchDB](http://couchdb.apache.org).
 It is somewhat higher-level than most other CouchDB clients, requiring a little less knowledge of CouchDB's REST API.
 Cradle also has built-in write-through caching, giving you an extra level of speed, and making document _updates_ and _deletion_ easier.
-Cradle was built from the love of CouchDB and Node.js, and tries to make the most out of this wonderful marriage of technologies. 
+Cradle was built from the love of CouchDB and Node.js, and tries to make the most out of this wonderful marriage of technologies.
 
 philosophy
 ----------
@@ -22,7 +22,7 @@ synopsis
 
     var cradle = require('cradle');
     var db = new(cradle.Connection).database('starwars');
-    
+
     db.get('vador', function (err, doc) {
         doc.name; // 'Darth Vador'
         assert.equal(doc.force, 'dark');
@@ -33,12 +33,12 @@ synopsis
         name: 'Luke Skywalker'
     }, function (err, res) {
         if (err) {
-            // Handle error 
+            // Handle error
         } else {
             // Handle success
         }
     });
-    
+
 API
 ---
 
@@ -79,7 +79,7 @@ _If you want to get a specific revision for that document, you can pass it as th
 
     db.view('characters/all', function (err, res) {
         res.forEach(function (row) {
-            sys.puts(row.name + " is on the " + 
+            sys.puts(row.name + " is on the " +
                      row.force + " side of the force.");
         });
     });
@@ -109,7 +109,7 @@ All saving and updating can be done with the `save()` database method.
     db.save('luke', '1-94B6F82', {
         force: 'dark', name: 'Luke'
     }, function (err, res) {
-        // Handle response 
+        // Handle response
     });
 
 Note that when saving a document this way, CouchDB overwrites the existing document with the new one. If you want to update only certain fields of the document, you have to fetch it first (with `get`), make your changes, then resave it with the above method.
@@ -132,7 +132,7 @@ If you want to insert more than one document at a time, for performance reasons,
         {name: 'Han Solo'},
         {name: 'Leia'}
     ], function (err, res) {
-        // Handle response 
+        // Handle response
     });
 
 #### creating views ####
@@ -142,15 +142,15 @@ Here we create a design document named 'characters', with two views: 'all' and '
     db.save('_design/characters', {
         all: {
             map: function (doc) {
-                if (doc.name) emit(doc.name, doc);  
-            }  
+                if (doc.name) emit(doc.name, doc);
+            }
         },
         darkside: {
             map: function (doc) {
                 if (doc.name && doc.force == 'dark') {
-                    emit(null, doc);  
-                }  
-            }  
+                    emit(null, doc);
+                }
+            }
         }
     });
 
@@ -161,7 +161,7 @@ These views can later be queried with `db.view('characters/all')`, for example.
 To remove a document, you call the `remove()` method, passing the latest document revision.
 
     db.remove('luke', '1-94B6F82', function (err, res) {
-        // Handle response 
+        // Handle response
     });
 
 
