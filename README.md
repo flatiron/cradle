@@ -23,7 +23,7 @@ synopsis
     var cradle = require('cradle');
     var db = new(cradle.Connection).database('starwars');
     
-    db.get('vador').addCallback(function (doc) {
+    db.get('vador', function (err, doc) {
         doc.name; // 'Darth Vador'
         assert.equal(doc.force, 'dark');
     });
@@ -31,17 +31,18 @@ synopsis
     db.save('skywalker', {
         force: 'light',
         name: 'Luke Skywalker'
-    }).addCallback(function (res) {
-        // Handle success
-    }).addErrback(function (res) {
-        // Handle error
+    }, function (err, res) {
+        if (err) {
+            // Handle error 
+        } else {
+            // Handle success
+        }
     });
     
 API
 ---
 
-The key concept to remember is that all database querying functions return a *promise*, 
-so getting the return value is a matter of chaining an `addCallback()` on to them.
+Cradle's API builds right on top of Node's asynch API. Every asynch method takes a callback as its last argument. The return value is an `event.EventEmitter`, so listeners can also be optionally added.
 
 ### Opening a connection ###
 
@@ -68,7 +69,7 @@ _You can check if a database exists with the `exists()` method._
 
 ### fetching a document _(GET)_ ###
 
-    db.get('vador').addCallback(function (doc) {
+    db.get('vador', function (err, doc) {
         sys.puts(doc);
     });
 
@@ -76,7 +77,7 @@ _If you want to get a specific revision for that document, you can pass it as th
 
 ### Querying a view ###
 
-    db.view('characters/all').addCallback(function (res) {
+    db.view('characters/all', function (err, res) {
         res.forEach(function (row) {
             sys.puts(row.name + " is on the " + 
                      row.force + " side of the force.");
@@ -89,34 +90,34 @@ All saving and updating can be done with the `save()` database method.
 
 #### with an id _(PUT)_ ####
 
-    db.save('vador',{
+    db.save('vador', {
         name: 'darth', force: 'dark'
-    }).addCallback(function (res) {
-        // Success
+    }, function (err, res) {
+        // Handle response
     });
 
 #### without an id _(POST)_ ####
 
     db.save({
         force: 'dark', name: 'Darth'
-    }).addCallback(function (res) {
-        // Success
+    }, function (err, res) {
+        // Handle response
     });
 
 #### updating an existing document with the revision ####
 
     db.save('luke', '1-94B6F82', {
         force: 'dark', name: 'Luke'
-    }).addCallback(function (res) {
-        // Success 
+    }, function (err, res) {
+        // Handle response 
     });
 
 Note that when saving a document this way, CouchDB overwrites the existing document with the new one. If you want to update only certain fields of the document, you have to fetch it first (with `get`), make your changes, then resave it with the above method.
 
 However, Cradle also comes with an `update` method, which attempts to merge your changes with a cached version of the document, and save it to the database:
 
-    db.update('luke', {jedi: true}).addCallback(function (res) {
-        // Success, luke is now a jedi,
+    db.update('luke', {jedi: true}, function (err, res) {
+        // Luke is now a jedi,
         // but remains on the dark side of the force.
     });
 
@@ -130,8 +131,8 @@ If you want to insert more than one document at a time, for performance reasons,
         {name: 'Yoda'},
         {name: 'Han Solo'},
         {name: 'Leia'}
-    ]).addCallback(function (res) {
-        // Success 
+    ], function (err, res) {
+        // Handle response 
     });
 
 #### creating views ####
@@ -159,8 +160,8 @@ These views can later be queried with `db.view('characters/all')`, for example.
 
 To remove a document, you call the `remove()` method, passing the latest document revision.
 
-    db.remove('luke', '1-94B6F82').addCallback(function () {
-        // Success 
+    db.remove('luke', '1-94B6F82', function (err, res) {
+        // Handle response 
     });
 
 
