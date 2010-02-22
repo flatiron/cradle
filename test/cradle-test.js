@@ -46,10 +46,10 @@ function r(method, url, doc) {
 vows.tell("Cradle", {
     setup: function () {
         ['rabbits', 'pigs','badgers'].forEach(function (db) {
-            r('DELETE', '/' + db).wait();
+            r('DELETE', '/' + db);
         });
         r('PUT', '/rabbits');
-        r('PUT', '/pigs').wait();
+        r('PUT', '/pigs');
         r('PUT', '/pigs/_design/pigs', {
             _id: '_design/pigs', views: {
                 all: { map: "function (doc) { if (doc.color) emit(null, doc) }" }
@@ -57,7 +57,8 @@ vows.tell("Cradle", {
         });
         r('PUT', '/pigs/mike', {color: 'pink'});
         r('PUT', '/rabbits/alex', {color: 'blue'});
-        r('PUT', '/pigs/bill', {color: 'blue'}).wait();
+        r('PUT', '/pigs/bill', {color: 'blue'});
+        process.loop();
     },
     "Default connection settings": {
         setup: function () {
