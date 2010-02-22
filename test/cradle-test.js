@@ -43,8 +43,6 @@ function r(method, url, doc) {
     return promise;
 }
 
-cradle.setup({ usePromises: true });
-
 vows.tell("Cradle", {
     setup: function () {
         ['rabbits', 'pigs','badgers'].forEach(function (db) {
