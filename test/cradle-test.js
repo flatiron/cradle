@@ -19,7 +19,7 @@ function status(code) {
 var client = http.createClient(5984, '127.0.0.1');
 
 function r(method, url, doc) {
-    var promise = new(events.Promise);
+    var promise = new(events.EventEmitter);
     var request = client.request(method, url, {});
 
     if (doc) { request.write(JSON.stringify(doc)) }
@@ -116,9 +116,8 @@ vows.tell("Cradle", {
         },
         "save()": {
             setup: function (db) {
-                var promise = new(events.Promise);
-                db.save('bob', {color: 'orange'})
-                  .addCallback(function () { promise.emitSuccess(db) });
+                var promise = new(events.EventEmitter);
+                db.save('bob', {color: 'orange'}, function () { promise.emit('success', db) });
                 return promise;
             },
             "should write through the cache": function (db) {
@@ -136,16 +135,16 @@ vows.tell("Cradle", {
         },
         "remove()": {
             setup: function (db) {
-                var promise = new(events.Promise);
-                db.save('bruno', {}).addCallback(function () {
-                    promise.emitSuccess(db);
+                var promise = new(events.EventEmitter);
+                db.save('bruno', {}, function () {
+                    promise.emit('success', db);
                 });
                 return promise;
             },
             "shouldn't ask for a revision": {
                 setup: function (db) {
-                    var promise = new(events.Promise);
-                    db.remove('bruno').addCallback(function () { promise.emitSuccess(db) });
+                    var promise = new(events.EventEmitter);
+                    db.remove('bruno', function () { promise.emit('success', db) });
                     return promise;
                 },
                 "and should purge the cache": function (db) {
@@ -268,10 +267,10 @@ vows.tell("Cradle", {
                 },
                 "should bulk insert the documents": {
                     setup: function (res, db) {
-                        var promise = new(events.Promise);
-                        db.get('tom').addCallback(function (tom) {
-                            db.get('flint').addCallback(function (flint) {
-                                promise.emitSuccess(tom, flint);
+                        var promise = new(events.EventEmitter);
+                        db.get('tom', function (e, tom) {
+                            db.get('flint', function (e, flint) {
+                                promise.emit('success', tom, flint);
                             });
                         });
                         return promise;
@@ -293,11 +292,12 @@ vows.tell("Cradle", {
             },
             "updating a document (PUT)": {
                 setup: function (db) {
-                    var promise = new(events.Promise);
-                    db.get('mike').addCallback(function (doc) {
+                    var promise = new(events.EventEmitter);
+                    db.get('mike', function (err, doc) {
                         db.save('mike', doc.rev,
-                            {color: doc.color, age: 13}).addCallback(function (res) {
-                            promise.emitSuccess(res); 
+                            {color: doc.color, age: 13}, function (err, res) {
+                            if (! err) promise.emit('success', res); 
+                            else promise.emit('error', res);
                         });
                     });
                     return promise;
@@ -314,10 +314,10 @@ vows.tell("Cradle", {
             },
             "deleting a document (DELETE)": {
                 setup: function (db) {
-                    var promise = new(events.Promise);
-                    db.get('bill').addCallback(function (res) {
-                        db.remove('bill', res.rev).addCallback(function (res) {
-                            promise.emitSuccess(res);
+                    var promise = new(events.EventEmitter);
+                    db.get('bill', function (e, res) {
+                        db.remove('bill', res.rev, function (e, res) {
+                            promise.emit('success', res);
                         });
                     });
                     return promise;
