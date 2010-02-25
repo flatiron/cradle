@@ -155,19 +155,6 @@ vows.tell("Cradle", {
             }
         }
     },
-    "A connection with continuation passing style": {
-        setup: function () {
-            //var promise = new(events.Promise);
-            //var c = new(cradle.Connection)({usePromises: false});
-            //c.database('badgers').save('robin', {})(function (res) {
-            //    promise.emitSuccess(res); 
-            //});
-            //return promise;
-        },
-        "should send requests one after the other": function (res) {
-            //assert.ok(res.ok);
-        }
-    },
     "A Cradle connection (no-cache)": {
         setup: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
