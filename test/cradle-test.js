@@ -5,7 +5,7 @@ var path = require('path'),
     http = require('http');
 
 require.paths.unshift(path.join(__dirname, '..', 'lib'),
-                      path.join(__dirname, 'vendor', 'vows', 'lib')); 
+                      path.join(__dirname, 'vendor', 'vows', 'lib'));
 
 var vows = require('vows'),
     cradle = require('cradle');
@@ -113,29 +113,39 @@ vows.tell("Cradle", {
         setup: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: true}).database('pigs');
         },
-        "save()": {
+        "insert()": {
             setup: function (db) {
                 var promise = new(events.EventEmitter);
-                db.save('bob', {color: 'orange'}, function () { promise.emit('success', db) });
+                db.insert('bob', {ears: true}, function () { promise.emit('success', db) });
                 return promise;
             },
             "should write through the cache": function (db) {
                 assert.ok(db.cache.has('bob'));
+                assert.ok(db.cache.get('bob')._rev);
             },
             "and": {
                 setup: function (db) {
-                    return db.save('bob', {size: 12});
+                    var promise = new(events.EventEmitter);
+                    db.save('bob', {size: 12}, function (e, res) {
+                        promise.emit('success', res, db.cache.get('bob'));
+                    });
+                    return promise;
                 },
                 "return a 201": status(201),
                 "allow an overwrite": function (res) {
                    assert.match(res.rev, /^2/);
+                },
+                "caches the updated document": function (res, doc) {
+                    assert.ok(doc);
+                    assert.equal(doc.size, 12);
+                    assert.equal(doc.ears, true);
                 }
             }
         },
         "remove()": {
             setup: function (db) {
                 var promise = new(events.EventEmitter);
-                db.save('bruno', {}, function () {
+                db.insert('bruno', {}, function () {
                     promise.emit('success', db);
                 });
                 return promise;
@@ -155,11 +165,11 @@ vows.tell("Cradle", {
             }
         }
     },
-    "A Cradle connection (no-cache)": {
+    "Connection": {
         setup: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
-        "queried for information": {
+        "getting server info": {
             setup: function (c) { return c.info() },
 
             "returns a 200": status(200),
@@ -192,7 +202,7 @@ vows.tell("Cradle", {
                 "it doesn't exist anymore": function (res) { assert.ok(! res) }
             }
         },
-        "a database": {
+        "database()": {
             setup: function (c) { return c.database('pigs') },
 
             "info()": {
@@ -209,22 +219,19 @@ vows.tell("Cradle", {
                     assert.equal(res.id, 'mike');
                 }
             },
-            "save() with an id and document": {
-                "should PUT the document, with the id": {
+            "insert()": {
+                "with an id & doc": {
                     setup: function (db) {
-                        return db.save('joe', {gender: 'male'});
+                        return db.insert('joe', {gender: 'male'});
                     },
-                    "returns a 201": status(201),
+                    "creates a new document (201)": status(201),
                     "returns the revision": function (res) {
                         assert.ok(res.rev);
                     }
                 },
-                "without an id (POST)": {}
-            },
-            "save() with a _design id": {
-                "should save the doc as a design": {
-                    setup: function (db) {
-                        return db.save('_design/horses', {
+                "with a '_design' id": {
+                    setup: function (_, db) {
+                        return db.insert('_design/horses', {
                             all: {
                                 map: function (doc) {
                                     if (doc.speed == 72) emit(null, doc);
@@ -232,21 +239,22 @@ vows.tell("Cradle", {
                             }
                         });
                     },
-                    "returns a 201": status(201),
+                    "creates a doc (201)": status(201),
                     "returns the revision": function (res) {
                         assert.ok(res.rev);
                     },
-                    "which can be queried": {
-                        setup: function (res, db) {
+                    "creates a design doc": {
+                        setup: function (res, _, db) {
                             return db.view('horses/all');
                         },
-                        "returns a 200": status(200)
+                        "which can be queried": status(200)
                     }
-                }
+                },
+                "without an id (POST)": {},
             },
-            "calling save() with an array": {
+            "calling insert() with an array": {
                 setup: function (db) {
-                    return db.save([{_id: 'tom'}, {_id: 'flint'}]);
+                    return db.insert([{_id: 'tom'}, {_id: 'flint'}]);
                 },
                 "returns an array of document ids and revs": function (res) {
                     assert.equal(res[0].id, 'tom');
@@ -268,9 +276,9 @@ vows.tell("Cradle", {
                     }
                 }
             },
-            "calling save() with multiple documents": {
+            "calling insert() with multiple documents": {
                 setup: function (db) {
-                    return db.save({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'});
+                    return db.insert({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'});
                 },
                 "returns an array of document ids and revs": function (res) {
                     assert.equal(res[0].id, 'pop');
@@ -293,7 +301,7 @@ vows.tell("Cradle", {
                     db.get('mike', function (err, doc) {
                         db.save('mike', doc.rev,
                             {color: doc.color, age: 13}, function (err, res) {
-                            if (! err) promise.emit('success', res); 
+                            if (! err) promise.emit('success', res, db);
                             else promise.emit('error', res);
                         });
                     });
@@ -304,10 +312,6 @@ vows.tell("Cradle", {
                     assert.ok(res.rev);
                     assert.match(res.rev, /^2/);
                 },
-
-                "returns the updated document": function (res) {
-                    //assert.equal(res.age, 13);
-                }
             },
             "deleting a document (DELETE)": {
                 setup: function (db) {
@@ -330,11 +334,17 @@ vows.tell("Cradle", {
                     assert.ok(res.rows);
                     assert.equal(res.rows.length, 2);
                 },
+                "returns an iterable object": function (res) {
+                    sys.puts(sys.inspect(res))
+                    res.forEach(function (k, v) {
+                        assert.ok(k === ('mike' || 'bill'));
+                    });
+                },
                 "with options": {
-                
+
                 },
                 "with a start & end key": {
-                
+
                 }
             }
         }
