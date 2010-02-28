@@ -15,7 +15,7 @@ philosophy
 ----------
 
 The key concept here is the common ground shared by CouchDB and Node.js, that is, _javascript_. The other important aspect of this marriage is the asynchronous behaviors of both these technologies. Cradle tries to make use of these symmetries, whenever it can.
-Cradle's API, although closely knit with CouchDB's, isn't overly so. Whenever the API can be abstracted in a friendlier, simpler way, that's the route it takes. So even though a large part of the `Cradle <--> CouchDB` mappings are one to one, some Cradle functions, such as `save()`, can perform more than one operation, depending on how they are used.
+Cradle's API, although closely knit with CouchDB's, isn't overly so. Whenever the API can be abstracted in a friendlier, simpler way, that's the route it takes. So even though a large part of the `Cradle <--> CouchDB` mappings are one to one, some Cradle functions, such as `insert()`, can perform more than one operation, depending on how they are used.
 
 synopsis
 --------
@@ -28,7 +28,7 @@ synopsis
         assert.equal(doc.force, 'dark');
     });
 
-    db.save('skywalker', {
+    db.insert('skywalker', {
         force: 'light',
         name: 'Luke Skywalker'
     }, function (err, res) {
@@ -86,19 +86,19 @@ _If you want to get a specific revision for that document, you can pass it as th
 
 ### creating/updating documents ###
 
-All saving and updating can be done with the `save()` database method.
+In general, document creation is done with the `insert()` method, while updating/overwriting is done with `save()`.
 
-#### with an id _(PUT)_ ####
+#### creating with an id _(PUT)_ ####
 
-    db.save('vador', {
+    db.insert('vador', {
         name: 'darth', force: 'dark'
     }, function (err, res) {
         // Handle response
     });
 
-#### without an id _(POST)_ ####
+#### creating without an id _(POST)_ ####
 
-    db.save({
+    db.insert({
         force: 'dark', name: 'Darth'
     }, function (err, res) {
         // Handle response
@@ -114,9 +114,9 @@ All saving and updating can be done with the `save()` database method.
 
 Note that when saving a document this way, CouchDB overwrites the existing document with the new one. If you want to update only certain fields of the document, you have to fetch it first (with `get`), make your changes, then resave it with the above method.
 
-However, Cradle also comes with an `update` method, which attempts to merge your changes with a cached version of the document, and save it to the database:
+However, if a `_rev` isn't explicitly passed, and Cradle has a cached version of the document in storage, it will try to merge your changes, and save the new version to the database.
 
-    db.update('luke', {jedi: true}, function (err, res) {
+    db.save('luke', {jedi: true}, function (err, res) {
         // Luke is now a jedi,
         // but remains on the dark side of the force.
     });
@@ -125,9 +125,9 @@ This only works because we previously saved a full version of 'luke', and the `c
 
 #### bulk insertion ####
 
-If you want to insert more than one document at a time, for performance reasons, you can pass an array to `save()`:
+If you want to insert more than one document at a time, for performance reasons, you can pass an array to `insert()`:
 
-    db.save([
+    db.insert([
         {name: 'Yoda'},
         {name: 'Han Solo'},
         {name: 'Leia'}
@@ -139,7 +139,7 @@ If you want to insert more than one document at a time, for performance reasons,
 
 Here we create a design document named 'characters', with two views: 'all' and 'darkside'.
 
-    db.save('_design/characters', {
+    db.insert('_design/characters', {
         all: {
             map: function (doc) {
                 if (doc.name) emit(doc.name, doc);
