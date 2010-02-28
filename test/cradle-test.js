@@ -52,7 +52,7 @@ vows.tell("Cradle", {
         r('PUT', '/pigs');
         r('PUT', '/pigs/_design/pigs', {
             _id: '_design/pigs', views: {
-                all: { map: "function (doc) { if (doc.color) emit(null, doc) }" }
+                all: { map: "function (doc) { if (doc.color) emit(doc._id, doc) }" }
             }
         });
         r('PUT', '/pigs/mike', {color: 'pink'});
@@ -333,11 +333,12 @@ vows.tell("Cradle", {
                 "returns view results": function (res) {
                     assert.ok(res.rows);
                     assert.equal(res.rows.length, 2);
+                    assert.equal(res.total_rows, 2);
                 },
                 "returns an iterable object": function (res) {
-                    sys.puts(sys.inspect(res))
                     res.forEach(function (k, v) {
-                        assert.ok(k === ('mike' || 'bill'));
+                        assert.ok(v);
+                        assert.ok(k === 'mike' || k === 'bill');
                     });
                 },
                 "with options": {
