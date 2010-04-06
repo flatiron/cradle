@@ -170,7 +170,7 @@ vows.tell("Cradle", {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "getting server info": {
-            setup: function (c) { return c.info() },
+            info: function (c) { return c.info() },
 
             "returns a 200": status(200),
             "returns the version number": function (info) {
@@ -179,7 +179,11 @@ vows.tell("Cradle", {
             }
         },
         "getting the list of databases": {
-            setup: function (c) { return c.databases() },
+            setup: function (c) { 
+                var promise = new(events.EventEmitter);
+                c.databases(function(err, res){ promise.emit('success', res); });
+                return promise;
+            },
             "should contain the 'rabbits' and 'pigs' databases": function (dbs) {
                 assert.ok(dbs.indexOf('rabbits') >= 0 );
                 assert.ok(dbs.indexOf('pigs') >= 0 );
@@ -187,7 +191,11 @@ vows.tell("Cradle", {
             }
         },
         "create()": {
-            setup: function (c) { return c.database('badgers').create() },
+            setup: function (c) { 
+                var promise = new(events.EventEmitter);
+                c.database('badgers').create(function(err, res){ promise.emit('success', res); });
+                return promise;
+            },
             "returns a 201": status(201),
             "creates a database": {
                 setup: function (res, c) { return c.database('badgers').exists() },
@@ -195,10 +203,16 @@ vows.tell("Cradle", {
             }
         },
         "destroy()": {
-            setup: function (c) { return c.database('rabbits').destroy() },
+            setup: function (c) { 
+                var promise = new(events.EventEmitter);
+                c.database('rabbits').destroy(function(err, res){ promise.emit('success', res);});
+                return promise;
+            },
             "returns a 200": status(200),
             "destroys a database": {
-                setup: function (res, c) { return c.database('rabbits').exists() },
+                setup: function (res, c) { 
+                    return c.database('rabbits').exists();
+                },
                 "it doesn't exist anymore": function (res) { assert.ok(! res) }
             }
         },
@@ -206,7 +220,11 @@ vows.tell("Cradle", {
             setup: function (c) { return c.database('pigs') },
 
             "info()": {
-                setup: function (db) { return db.info() },
+                setup: function (db) { 
+                    var promise = new(events.EventEmitter);
+                    db.info(function(err, res){ promise.emit('success', res);});
+                    return promise;
+                },
                 "returns a 200": status(200),
                 "returns database info": function (info) {
                     assert.equal(info['db_name'], 'pigs');
@@ -288,7 +306,9 @@ vows.tell("Cradle", {
             },
             "getting all documents": {
                 setup: function (db) {
-                    return db.all();
+                    var promise = new(events.EventEmitter);
+                    db.all(function(err, res){ promise.emit('success', res);});
+                    return promise;
                 },
                 "returns a 200": status(200),
                 "returns a list of all docs": function (res) {
@@ -327,7 +347,9 @@ vows.tell("Cradle", {
             },
             "querying a view": {
                 setup: function (db) {
-                    return db.view('pigs/all');
+                    var promise = new(events.EventEmitter);
+                    db.view('pigs/all', function(err, res){ promise.emit('success', res); });
+                    return promise;
                 },
                 "returns a 200": status(200),
                 "returns view results": function (res) {
