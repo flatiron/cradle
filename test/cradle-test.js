@@ -369,6 +369,31 @@ vows.tell("Cradle", {
                 "with a start & end key": {
 
                 }
+            },
+            "putting an attachment": {
+                "to an existing document": {
+                    setup: function(db) {
+                        var promise = new(events.EventEmitter);
+                        db.insert({'_id':'attachment'}, function(e,res){ promise.emit('success', res) });
+                        return promise;
+                    },
+                    "with given data": {
+                        setup: function(docres, db) {
+                            var promise = new(events.EventEmitter), response={body: ''};
+                            db.save_attachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', {content_type: 'text/plain', data: 'Foo!'})
+                                .addListener('response', function(res){ response._headers = {status: res.statusCode}; })
+                                .addListener('data', function(chunk) { response.body += chunk; })
+                                .addListener('end', function() { promise.emit('success', response); });
+                            return promise;
+                        },
+                        "returns a 201": status(201),
+                        "returns the revision": function (res) {
+                            // assert.ok(res.rev);
+                            // assert.match(res.rev, /^2/);
+                        }
+
+                    }
+                }
             }
         }
     }
