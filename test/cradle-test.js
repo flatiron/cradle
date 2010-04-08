@@ -12,6 +12,7 @@ var vows = require('vows'),
 
 function status(code) {
     return function (res) {
+        assert.ok(res);
         assert.equal(res._headers.status, code);
     };
 }
