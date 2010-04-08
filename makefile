@@ -1,3 +1,5 @@
+default: test
+
 #
 # Run all tests
 #
