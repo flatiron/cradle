@@ -171,7 +171,7 @@ vows.tell("Cradle", {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "getting server info": {
-            info: function (c) { return c.info() },
+            setup: function (c) { return c.info() },
 
             "returns a 200": status(200),
             "returns the version number": function (info) {
