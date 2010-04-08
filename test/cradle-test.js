@@ -383,13 +383,16 @@ vows.tell("Cradle", {
                             db.save_attachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', {content_type: 'text/plain', data: 'Foo!'})
                                 .addListener('response', function(res){ response._headers = {status: res.statusCode}; })
                                 .addListener('data', function(chunk) { response.body += chunk; })
-                                .addListener('end', function() { promise.emit('success', response); });
+                                .addListener('end', function() { 
+                                    response.body = JSON.parse(response.body);
+                                    promise.emit('success', response);
+                                });
                             return promise;
                         },
                         "returns a 201": status(201),
                         "returns the revision": function (res) {
-                            // assert.ok(res.rev);
-                            // assert.match(res.rev, /^2/);
+                            assert.ok(res.body.rev);
+                            assert.match(res.body.rev, /^2/);
                         }
 
                     }
