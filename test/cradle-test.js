@@ -2,7 +2,8 @@ var path = require('path'),
     sys = require('sys'),
     assert = require('assert'),
     events = require('events'),
-    http = require('http');
+    http = require('http'),
+    fs = require('fs');
 
 require.paths.unshift(path.join(__dirname, '..', 'lib'),
                       path.join(__dirname, 'vendor', 'vows', 'lib'));
@@ -381,21 +382,35 @@ vows.tell("Cradle", {
                     "with given data": {
                         setup: function(docres, db) {
                             var promise = new(events.EventEmitter), response={body: ''};
-                            db.save_attachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', {content_type: 'text/plain', data: 'Foo!'})
-                                .addListener('response', function(res){ response._headers = {status: res.statusCode}; })
-                                .addListener('data', function(chunk) { response.body += chunk; })
-                                .addListener('end', function() { 
-                                    response.body = JSON.parse(response.body);
-                                    promise.emit('success', response);
-                                });
+                            db.saveAttachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', 'text/plain', 'Foo!', 
+                                    function(res){ promise.emit('success', res);});
                             return promise;
                         },
                         "returns a 201": status(201),
                         "returns the revision": function (res) {
-                            assert.ok(res.body.rev);
-                            assert.match(res.body.rev, /^2/);
+                            assert.ok(res.rev);
+                            assert.match(res.rev, /^2/);
                         }
 
+                    },
+                    "with streaming data": {
+                        // setup: function(docres, db) {
+                        //     var promise = new(events.EventEmitter), response={body:''};
+                        //     filestream = fs.createReadStream(__dirname+"../README.md");
+                        //     db.saveAttachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', {content_type: 'text/plain', stream:filestream})
+                        //         .addListener('response', function(res){ response._headers = {status: res.statusCode};})
+                        //         .addListener('data', function(chunk){ response.body += chunk; })
+                        //         .addListener('end', function() {
+                        //             response.body = JSON.parse(response.body);
+                        //             promise.emit('success', response);
+                        //         });
+                        //     return promise;
+                        // },
+                        // "returns a 201": status(201),
+                        // "returns the revision": function(res) {
+                        //     assert.ok(res.body.rev);
+                        //     assert.match(res.body.rev, /^2/);
+                        // }
                     }
                 }
             }
