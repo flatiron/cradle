@@ -250,7 +250,7 @@ vows.tell("Cradle", {
                     }
                 },
                 "with a '_design' id": {
-                    setup: function (_, db) {
+                    setup: function (db) {
                         return db.insert('_design/horses', {
                             all: {
                                 map: function (doc) {
@@ -264,7 +264,7 @@ vows.tell("Cradle", {
                         assert.ok(res.rev);
                     },
                     "creates a design doc": {
-                        setup: function (res, _, db) {
+                        setup: function (res, db) {
                             return db.view('horses/all');
                         },
                         "which can be queried": status(200)
@@ -374,16 +374,13 @@ vows.tell("Cradle", {
             },
             "putting an attachment": {
                 "to an existing document": {
-                    setup: function(db) {
-                        var promise = new(events.EventEmitter);
-                        db.insert({'_id':'attachment'}, function(e,res){ promise.emit('success', res) });
-                        return promise;
-                    },
                     "with given data": {
-                        setup: function(docres, db) {
-                            var promise = new(events.EventEmitter), response={body: ''};
-                            db.saveAttachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', 'text/plain', 'Foo!', 
+                        setup: function(db) {
+                            var promise = new(events.EventEmitter);
+                            db.insert({'_id':'complete-attachment'}, function(e,res){
+                                db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', 
                                     function(res){ promise.emit('success', res);});
+                            });
                             return promise;
                         },
                         "returns a 201": status(201),
@@ -391,26 +388,22 @@ vows.tell("Cradle", {
                             assert.ok(res.rev);
                             assert.match(res.rev, /^2/);
                         }
-
                     },
                     "with streaming data": {
-                        // setup: function(docres, db) {
-                        //     var promise = new(events.EventEmitter), response={body:''};
-                        //     filestream = fs.createReadStream(__dirname+"../README.md");
-                        //     db.saveAttachment({_id: docres.id, _rev: docres.rev}, 'foo.txt', {content_type: 'text/plain', stream:filestream})
-                        //         .addListener('response', function(res){ response._headers = {status: res.statusCode};})
-                        //         .addListener('data', function(chunk){ response.body += chunk; })
-                        //         .addListener('end', function() {
-                        //             response.body = JSON.parse(response.body);
-                        //             promise.emit('success', response);
-                        //         });
-                        //     return promise;
-                        // },
-                        // "returns a 201": status(201),
-                        // "returns the revision": function(res) {
-                        //     assert.ok(res.body.rev);
-                        //     assert.match(res.body.rev, /^2/);
-                        // }
+                        setup: function(db) {
+                            var promise = new(events.EventEmitter), filestream;
+                            db.insert({'_id':'streaming-attachment'}, function(e, res){
+                                filestream = fs.createReadStream(__dirname+"/../README.md");
+                                db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', filestream,
+                                    function(res){ promise.emit('success', res);});
+                            })
+                            return promise;
+                        },
+                        "returns a 201": status(201),
+                        "returns the revision": function(res) {
+                            assert.ok(res.rev);
+                            assert.match(res.rev, /^2/);
+                        }
                     }
                 }
             }
