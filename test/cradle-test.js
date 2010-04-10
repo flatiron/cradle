@@ -406,6 +406,30 @@ vows.tell("Cradle", {
                         }
                     }
                 }
+            },
+            "getting an attachment": {
+                setup: function(db) {
+                    var promise = new(events.EventEmitter), response = {};
+                    doc = {_id:'attachment-getter', _attachments:{ "foo.txt":{content_type:"text/plain", data:"aGVsbG8gd29ybGQ="} }};
+                    db.insert(doc, function(e, res){
+                        var streamer = db.getAttachment('attachment-getter','foo.txt');
+                        streamer.addListener('response', function(res){
+                            response._headers = res.headers;
+                            response._headers.status = res.statusCode;
+                            response.body = "";
+                        });
+                        streamer.addListener('data', function(chunk){ response.body += chunk; });
+                        streamer.addListener('end', function() { promise.emit('success', response); });
+                    });
+                    return promise;
+                },
+                "returns a 200": status(200),
+                "returns the right mime-type in the header": function (res) {
+                    assert.equal(res._headers['content-type'], 'text/plain');
+                },
+                "returns the attachment in the body": function (res) {
+                    assert.equal(res.body, "hello world");
+                }
             }
         }
     }
