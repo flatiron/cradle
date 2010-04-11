@@ -18,6 +18,14 @@ function status(code) {
     };
 }
 
+function mixin(target) {
+    var objs = Array.prototype.slice.call(arguments, 1);
+    objs.forEach(function(o) {
+        for (var attr in o) { target[attr] = o[attr] }
+    });
+    return target;
+}
+
 var client = http.createClient(5984, '127.0.0.1');
 
 function r(method, url, doc) {
@@ -163,6 +171,52 @@ vows.tell("Cradle", {
                 },
                 "and raise an exception if you use remove() without a rev": function (db) {
                     //assert.throws(db.remove('bruno'), Error);
+                }
+            }
+        },
+        "saveAttachment()": {
+            setup: function(db) {
+                var promise = new(events.EventEmitter);
+                db.insert({_id:'attachment-cache'}, function(e,res){
+                    db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', 
+                        function(res){ promise.emit('success', res);});
+                });
+                return promise;
+            },
+            "updates the cache": {
+                setup: function(res, db) {
+                    return mixin({}, db.cache.store[res.id]);
+                },
+                "with the revision": function(cached, res) {
+                    assert.match(cached._rev, /^2-/);
+                },
+                "with the _attachments": function(cached) {
+                    assert.ok(cached._attachments);
+                    assert.ok(cached._attachments['foo.txt']);
+                    assert.equal(cached._attachments['foo.txt'].stub, true);
+                    assert.equal(cached._attachments['foo.txt'].content_type, 'text/plain');
+                    assert.equal(cached._attachments['foo.txt'].revpos, 2);
+                },
+                "and is valid enough to re-save": {
+                    setup: function(cached, res, db) {
+                        var promise = new(events.EventEmitter);
+                        db.insert(mixin({foo:'bar'}, cached), function(e,res){
+                            db.cache.purge('attachment-cache');
+                            db.get('attachment-cache', function(e, res) {
+                                promise.emit('success', res);
+                            });
+                        });
+                        return promise;
+                    },
+                    "has the attachment": function(res) {
+                        assert.equal(res._attachments['foo.txt'].stub, true);
+                        assert.equal(res._attachments['foo.txt'].content_type, 'text/plain');
+                        assert.equal(res._attachments['foo.txt'].length, 4);
+                        assert.equal(res._attachments['foo.txt'].revpos, 2);
+                    },
+                    "has the right rev": function(res) { 
+                        assert.match(res._rev, /^3-/);
+                    }
                 }
             }
         }
@@ -377,7 +431,7 @@ vows.tell("Cradle", {
                     "with given data": {
                         setup: function(db) {
                             var promise = new(events.EventEmitter);
-                            db.insert({'_id':'complete-attachment'}, function(e,res){
+                            db.insert({_id:'complete-attachment'}, function(e,res){
                                 db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', 
                                     function(res){ promise.emit('success', res);});
                             });
@@ -404,31 +458,62 @@ vows.tell("Cradle", {
                             assert.ok(res.rev);
                             assert.match(res.rev, /^2/);
                         }
+                    },
+                    "with incorrect revision": {
+                        setup: function(db) {
+                            var promise = new(events.EventEmitter), oldRev;
+                            db.insert({_id:'attachment-incorrect-revision'}, function(e, res) {
+                                oldRev = res.rev;
+                                db.insert({_id:'attachment-incorrect-revision', _rev:res.rev}, function(e, res){
+                                    db.saveAttachment({_id:res.id, _rev:oldRev}, 'foo.txt', 'text/plain', 'Foo!',
+                                        function(res) { promise.emit('success', res); });
+                                });
+                            });
+                            return promise;
+                        },
+                        "returns a 409": status(409)
                     }
                 }
             },
             "getting an attachment": {
-                setup: function(db) {
-                    var promise = new(events.EventEmitter), response = {};
-                    doc = {_id:'attachment-getter', _attachments:{ "foo.txt":{content_type:"text/plain", data:"aGVsbG8gd29ybGQ="} }};
-                    db.insert(doc, function(e, res){
-                        var streamer = db.getAttachment('attachment-getter','foo.txt');
-                        streamer.addListener('response', function(res){
-                            response._headers = res.headers;
-                            response._headers.status = res.statusCode;
-                            response.body = "";
+                "when it exists": {
+                    setup: function(db) {
+                        var promise = new(events.EventEmitter), response = {};
+                        doc = {_id:'attachment-getter', _attachments:{ "foo.txt":{content_type:"text/plain", data:"aGVsbG8gd29ybGQ="} }};
+                        db.insert(doc, function(e, res){
+                            var streamer = db.getAttachment('attachment-getter','foo.txt');
+                            streamer.addListener('response', function(res){
+                                response._headers = res.headers;
+                                response._headers.status = res.statusCode;
+                                response.body = "";
+                            });
+                            streamer.addListener('data', function(chunk){ response.body += chunk; });
+                            streamer.addListener('end', function() { promise.emit('success', response); });
                         });
-                        streamer.addListener('data', function(chunk){ response.body += chunk; });
-                        streamer.addListener('end', function() { promise.emit('success', response); });
-                    });
-                    return promise;
+                        return promise;
+                    },
+                    "returns a 200": status(200),
+                    "returns the right mime-type in the header": function (res) {
+                        assert.equal(res._headers['content-type'], 'text/plain');
+                    },
+                    "returns the attachment in the body": function (res) {
+                        assert.equal(res.body, "hello world");
+                    }
                 },
-                "returns a 200": status(200),
-                "returns the right mime-type in the header": function (res) {
-                    assert.equal(res._headers['content-type'], 'text/plain');
-                },
-                "returns the attachment in the body": function (res) {
-                    assert.equal(res.body, "hello world");
+                "when not found": {
+                    setup: function(db) {
+                        var promise = new(events.EventEmitter), response = {};
+                        db.insert({_id:'attachment-not-found'}, function(e, res) {
+                            var streamer = db.getAttachment('attachment-not-found','foo.txt');
+                            streamer.addListener('response', function(res) {
+                                response._headers = res.headers;
+                                response._headers.status = res.statusCode;
+                                promise.emit('success', response);
+                            });
+                        });
+                        return promise;
+                    },
+                    "returns a 404": status(404)
                 }
             }
         }
