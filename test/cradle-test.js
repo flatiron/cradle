@@ -175,17 +175,16 @@ vows.tell("Cradle", {
             }
         },
         "saveAttachment()": {
-            setup: function(db) {
-                var promise = new(events.EventEmitter);
-                db.insert({_id:'attachment-cache'}, function(e,res){
-                    db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', 
-                        function(res){ promise.emit('success', res);});
-                });
-                return promise;
-            },
             "updates the cache": {
-                setup: function(res, db) {
-                    return mixin({}, db.cache.store[res.id]);
+                setup: function(db) {
+                    var promise = new(events.EventEmitter);
+                    db.insert({_id:'attachment-cacher'}, function(e,res){
+                        db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', function(attRes){ 
+                            var cached = mixin({}, db.cache.store[res.id]);
+                            promise.emit('success', cached);
+                        });
+                    });
+                    return promise;
                 },
                 "with the revision": function(cached, res) {
                     assert.match(cached._rev, /^2-/);
@@ -198,26 +197,39 @@ vows.tell("Cradle", {
                     assert.equal(cached._attachments['foo.txt'].revpos, 2);
                 },
                 "and is valid enough to re-save": {
-                    setup: function(cached, res, db) {
+                    setup: function(cached, db) {
                         var promise = new(events.EventEmitter);
                         db.insert(mixin({foo:'bar'}, cached), function(e,res){
-                            db.cache.purge('attachment-cache');
-                            db.get('attachment-cache', function(e, res) {
+                            db.cache.purge(cached._id);
+                            db.get(cached._id, function(e, res) {
                                 promise.emit('success', res);
                             });
                         });
                         return promise;
                     },
                     "has the attachment": function(res) {
-                        assert.equal(res._attachments['foo.txt'].stub, true);
-                        assert.equal(res._attachments['foo.txt'].content_type, 'text/plain');
-                        assert.equal(res._attachments['foo.txt'].length, 4);
-                        assert.equal(res._attachments['foo.txt'].revpos, 2);
+                        var att = res._attachments['foo.txt'];
+                        assert.equal(att.stub, true);
+                        assert.equal(att.content_type, 'text/plain');
+                        assert.equal(att.length, 4);
+                        assert.equal(att.revpos, 2);
                     },
-                    "has the right rev": function(res) { 
+                    "and actually updated the rev": function(res) { 
                         assert.match(res._rev, /^3-/);
                     }
                 }
+            },
+            "pulls the revision from the cache if not given": {
+                setup: function(db) {
+                    var promise = new(events.EventEmitter);
+                    db.insert({_id:'attachment-saving-pulls-rev-from-cache'}, function(e, res){
+                        db.saveAttachment(res.id, 'foo.txt', 'text/plain', 'Foo!', function(attRes){
+                            promise.emit('success', attRes);
+                        });
+                    });
+                    return promise;
+                },
+                "and saves successfully": status(201)
             }
         }
     },
@@ -441,7 +453,7 @@ vows.tell("Cradle", {
                         "returns the revision": function (res) {
                             assert.ok(res.rev);
                             assert.match(res.rev, /^2/);
-                        }
+                        },
                     },
                     "with streaming data": {
                         setup: function(db) {
@@ -472,6 +484,19 @@ vows.tell("Cradle", {
                             return promise;
                         },
                         "returns a 409": status(409)
+                    }
+                },
+                "to a non-existing document": {
+                    setup: function(db) {
+                        var promise = new(events.EventEmitter);
+                        db.saveAttachment('standalone-attachment', 'foo.txt', 'text/plain', 'Foo!',
+                            function(res){ promise.emit('success', res);});
+                        return promise;
+                    },
+                    "returns a 201": status(201),
+                    "returns the revision": function(res) {
+                        assert.ok(res.rev);
+                        assert.match(res.rev, /^1-/);
                     }
                 }
             },
