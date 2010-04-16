@@ -49,7 +49,7 @@ function r(method, url, doc) {
             promise.emit('success', obj);
         });
     });
-    request.close();
+    request.end();
     return promise;
 }
 
