@@ -1,0 +1,11 @@
+{
+  "name"          : "cradle",
+  "description"   : "the high-level, caching, CouchDB library",
+  "url"           : "http://cloudhead.io/cradle",
+  "keywords"      : ["couchdb", "database", "couch"],
+  "author"        : "Alexis Sellier <self@cloudhead.net>",
+  "contributors"  : [],
+  "dependencies"  : [],
+  "lib"           : "lib",
+  "version"       : "0.1.0"
+}
