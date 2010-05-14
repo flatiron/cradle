@@ -53,8 +53,8 @@ function r(method, url, doc) {
     return promise;
 }
 
-vows.tell("Cradle", {
-    setup: function () {
+vows.describe("Cradle").addVows({
+    topic: function () {
         ['rabbits', 'pigs','badgers'].forEach(function (db) {
             r('DELETE', '/' + db);
         });
@@ -71,7 +71,7 @@ vows.tell("Cradle", {
         process.loop();
     },
     "Default connection settings": {
-        setup: function () {
+        topic: function () {
             cradle.setup({
                 host: "http://cloudhead.io",
                 port: 4242,
@@ -86,28 +86,28 @@ vows.tell("Cradle", {
             assert.equal(c.options.cache, true);
         },
         "with just a {} passed to a new Connection object": {
-            setup: function () { return new(cradle.Connection)({milk: 'green'}) },
+            topic: function () { return new(cradle.Connection)({milk: 'green'}) },
             "should override the defaults": function (c) {
                 assert.equal(c.options.milk, 'green');
                 assert.equal(c.port, 4242);
             }
         },
         "with a host and port passed to Connection": {
-            setup: function () { return new(cradle.Connection)("255.255.0.0", 9696) },
+            topic: function () { return new(cradle.Connection)("255.255.0.0", 9696) },
             "should override the defaults": function (c) {
                 assert.equal(c.host, '255.255.0.0');
                 assert.equal(c.port, 9696);
             }
         },
         "with a host and port passed as a string to Connection": {
-            setup: function () { return new(cradle.Connection)("8.8.8.8:4141") },
+            topic: function () { return new(cradle.Connection)("8.8.8.8:4141") },
             "should override the defaults": function (c) {
                 assert.equal(c.host, '8.8.8.8');
                 assert.equal(c.port, 4141);
             }
         },
         "with a host, port and options passed to Connection": {
-            setup: function () { return new(cradle.Connection)("4.4.4.4", 911, {raw: true}) },
+            topic: function () { return new(cradle.Connection)("4.4.4.4", 911, {raw: true}) },
             "should override the defaults": function (c) {
                 assert.equal(c.host, '4.4.4.4');
                 assert.equal(c.port, 911);
@@ -120,11 +120,11 @@ vows.tell("Cradle", {
     // Cache
     //
     "A Cradle connection (cache)": {
-        setup: function () {
+        topic: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: true}).database('pigs');
         },
         "insert()": {
-            setup: function (db) {
+            topic: function (db) {
                 var promise = new(events.EventEmitter);
                 db.insert('bob', {ears: true}, function (e, res) {
                     promise.emit("success", db);
@@ -136,7 +136,7 @@ vows.tell("Cradle", {
                 assert.ok(db.cache.get('bob')._rev);
             },
             "and": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.save('bob', {size: 12}, function (e, res) {
                         promise.emit('success', res, db.cache.get('bob'));
@@ -147,7 +147,7 @@ vows.tell("Cradle", {
                 "allow an overwrite": function (res) {
                    assert.match(res.rev, /^2/);
                 },
-                "caches the updated document": function (res, doc) {
+                "caches the updated document": function (e, res, doc) {
                     assert.ok(doc);
                     assert.equal(doc.size, 12);
                     assert.equal(doc.ears, true);
@@ -155,7 +155,7 @@ vows.tell("Cradle", {
             }
         },
         "remove()": {
-            setup: function (db) {
+            topic: function (db) {
                 var promise = new(events.EventEmitter);
                 db.insert('bruno', {}, function (e, res) {
                     promise.emit("success", db);
@@ -163,7 +163,7 @@ vows.tell("Cradle", {
                 return promise;
             },
             "shouldn't ask for a revision": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.remove('bruno', function () { promise.emit('success', db) });
                     return promise;
@@ -178,7 +178,7 @@ vows.tell("Cradle", {
         },
         "saveAttachment()": {
             "updates the cache": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.insert({_id:'attachment-cacher'}, function (e,res) {
                         db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
@@ -188,7 +188,7 @@ vows.tell("Cradle", {
                     });
                     return promise;
                 },
-                "with the revision": function (cached, res) {
+                "with the revision": function (cached) {
                     assert.match(cached._rev, /^2-/);
                 },
                 "with the _attachments": function (cached) {
@@ -199,7 +199,7 @@ vows.tell("Cradle", {
                     assert.equal(cached._attachments['foo.txt'].revpos, 2);
                 },
                 "and is valid enough to re-save": {
-                    setup: function (cached, db) {
+                    topic: function (cached, db) {
                         var promise = new(events.EventEmitter);
                         db.insert(mixin({foo:'bar'}, cached), function (e,res) {
                             db.cache.purge(cached._id);
@@ -222,7 +222,7 @@ vows.tell("Cradle", {
                 }
             },
             "pulls the revision from the cache if not given": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.insert({_id:'attachment-saving-pulls-rev-from-cache'}, function (e, res) {
                         db.saveAttachment(res.id, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
@@ -236,11 +236,11 @@ vows.tell("Cradle", {
         }
     },
     "Connection": {
-        setup: function () {
+        topic: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "getting server info": {
-            setup: function (c) { return c.info() },
+            topic: function (c) { return c.info() },
 
             "returns a 200": status(200),
             "returns the version number": function (info) {
@@ -249,7 +249,7 @@ vows.tell("Cradle", {
             }
         },
         "getting the list of databases": {
-            setup: function (c) {
+            topic: function (c) {
                 return c.databases();
             },
             "should contain the 'rabbits' and 'pigs' databases": function (dbs) {
@@ -259,32 +259,32 @@ vows.tell("Cradle", {
             }
         },
         "create()": {
-            setup: function (c) {
+            topic: function (c) {
                 return c.database('badgers').create();
             },
             "returns a 201": status(201),
             "creates a database": {
-                setup: function (res, c) { return c.database('badgers').exists() },
+                topic: function (res, c) { return c.database('badgers').exists() },
                 "it exists": function (res) { assert.ok(res) }
             }
         },
         "destroy()": {
-            setup: function (c) {
+            topic: function (c) {
                 return c.database('rabbits').destroy();
             },
             "returns a 200": status(200),
             "destroys a database": {
-                setup: function (res, c) {
+                topic: function (res, c) {
                     return c.database('rabbits').exists();
                 },
                 "it doesn't exist anymore": function (res) { assert.ok(! res) }
             }
         },
         "database()": {
-            setup: function (c) { return c.database('pigs') },
+            topic: function (c) { return c.database('pigs') },
 
             "info()": {
-                setup: function (db) {
+                topic: function (db) {
                     return db.info();
                 },
                 "returns a 200": status(200),
@@ -293,7 +293,7 @@ vows.tell("Cradle", {
                 }
             },
             "fetching a document by id (GET)": {
-                setup: function (db) { return db.get('mike') },
+                topic: function (db) { return db.get('mike') },
                 "returns a 200": status(200),
                 "returns the document": function (res) {
                     assert.equal(res.id, 'mike');
@@ -301,7 +301,7 @@ vows.tell("Cradle", {
             },
             "insert()": {
                 "with an id & doc": {
-                    setup: function (db) {
+                    topic: function (db) {
                         return db.insert('joe', {gender: 'male'});
                     },
                     "creates a new document (201)": status(201),
@@ -310,7 +310,7 @@ vows.tell("Cradle", {
                     }
                 },
                 "with a '_design' id": {
-                    setup: function (db) {
+                    topic: function (db) {
                         return db.insert('_design/horses', {
                             all: {
                                 map: function (doc) {
@@ -324,7 +324,7 @@ vows.tell("Cradle", {
                         assert.ok(res.rev);
                     },
                     "creates a design doc": {
-                        setup: function (res, db) {
+                        topic: function (res, db) {
                             return db.view('horses/all');
                         },
                         "which can be queried": status(200)
@@ -333,7 +333,7 @@ vows.tell("Cradle", {
                 "without an id (POST)": {},
             },
             "calling insert() with an array": {
-                setup: function (db) {
+                topic: function (db) {
                     return db.insert([{_id: 'tom'}, {_id: 'flint'}]);
                 },
                 "returns an array of document ids and revs": function (res) {
@@ -341,7 +341,7 @@ vows.tell("Cradle", {
                     assert.equal(res[1].id, 'flint');
                 },
                 "should bulk insert the documents": {
-                    setup: function (res, db) {
+                    topic: function (res, db) {
                         var promise = new(events.EventEmitter);
                         db.get('tom', function (e, tom) {
                             db.get('flint', function (e, flint) {
@@ -350,14 +350,14 @@ vows.tell("Cradle", {
                         });
                         return promise;
                     },
-                    "which can then be retrieved": function (tom, flint) {
+                    "which can then be retrieved": function (e, tom, flint) {
                         assert.ok(tom._id);
                         assert.ok(flint._id);
                     }
                 }
             },
             "calling insert() with multiple documents": {
-                setup: function (db) {
+                topic: function (db) {
                     return db.insert({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'});
                 },
                 "returns an array of document ids and revs": function (res) {
@@ -367,7 +367,7 @@ vows.tell("Cradle", {
                 }
             },
             "getting all documents": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.all(function (err, res) { promise.emit('success', res);});
                     return promise;
@@ -378,7 +378,7 @@ vows.tell("Cradle", {
                 }
             },
             "updating a document (PUT)": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.get('mike', function (err, doc) {
                         db.save('mike', doc.rev,
@@ -396,7 +396,7 @@ vows.tell("Cradle", {
                 },
             },
             "deleting a document (DELETE)": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.get('bill', function (e, res) {
                         db.remove('bill', res.rev, function (e, res) {
@@ -408,7 +408,7 @@ vows.tell("Cradle", {
                 "returns a 200": status(200)
             },
             "querying a view": {
-                setup: function (db) {
+                topic: function (db) {
                     var promise = new(events.EventEmitter);
                     db.view('pigs/all', function (err, res) { promise.emit('success', res); });
                     return promise;
@@ -435,7 +435,7 @@ vows.tell("Cradle", {
             "putting an attachment": {
                 "to an existing document": {
                     "with given data": {
-                        setup: function (db) {
+                        topic: function (db) {
                             var promise = new(events.EventEmitter);
                             db.insert({_id: 'complete-attachment'}, function (e, res) {
                                 db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', 'Foo!',
@@ -450,7 +450,7 @@ vows.tell("Cradle", {
                         },
                     },
                     "with streaming data": {
-                        setup: function (db) {
+                        topic: function (db) {
                             var promise = new(events.EventEmitter), filestream;
                             db.insert({'_id':'streaming-attachment'}, function (e, res) {
                                 filestream = fs.createReadStream(__dirname + "/../README.md");
@@ -466,7 +466,7 @@ vows.tell("Cradle", {
                         }
                     },
                     "with incorrect revision": {
-                        setup: function (db) {
+                        topic: function (db) {
                             var promise = new(events.EventEmitter), oldRev;
                             db.insert({_id: 'attachment-incorrect-revision'}, function (e, res) {
                                 oldRev = res.rev;
@@ -481,7 +481,7 @@ vows.tell("Cradle", {
                     }
                 },
                 "to a non-existing document": {
-                    setup: function (db) {
+                    topic: function (db) {
                         return db.saveAttachment('standalone-attachment', 'foo.txt', 'text/plain', 'Foo!');
                     },
                     "returns a 201": status(201),
@@ -493,7 +493,7 @@ vows.tell("Cradle", {
             },
             "getting an attachment": {
                 "when it exists": {
-                    setup: function (db) {
+                    topic: function (db) {
                         var promise = new(events.EventEmitter), response = {};
                         doc = {_id:'attachment-getter', _attachments:{ "foo.txt":{content_type:"text/plain", data:"aGVsbG8gd29ybGQ="} }};
                         db.insert(doc, function (e, res) {
@@ -517,7 +517,7 @@ vows.tell("Cradle", {
                     }
                 },
                 "when not found": {
-                    setup: function (db) {
+                    topic: function (db) {
                         var promise = new(events.EventEmitter), response = {};
                         db.insert({_id:'attachment-not-found'}, function (e, res) {
                             var streamer = db.getAttachment('attachment-not-found','foo.txt');
