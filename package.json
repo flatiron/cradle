@@ -5,7 +5,7 @@
   "keywords"      : ["couchdb", "database", "couch"],
   "author"        : "Alexis Sellier <self@cloudhead.net>",
   "contributors"  : [],
-  "dependencies"  : [],
+  "dependencies"  : ["vargs"],
   "lib"           : "lib",
   "version"       : "0.1.0"
 }
