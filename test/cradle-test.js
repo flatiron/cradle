@@ -53,23 +53,23 @@ function r(method, url, doc) {
     return promise;
 }
 
+['rabbits', 'pigs','badgers'].forEach(function (db) {
+    r('DELETE', '/' + db);
+});
+r('PUT', '/rabbits');
+r('PUT', '/pigs');
+r('PUT', '/pigs/_design/pigs', {
+    _id: '_design/pigs', views: {
+        all: { map: "function (doc) { if (doc.color) emit(doc._id, doc) }" }
+    }
+});
+r('PUT', '/pigs/mike', {color: 'pink'});
+r('PUT', '/rabbits/alex', {color: 'blue'});
+r('PUT', '/pigs/bill', {color: 'blue'});
+
+process.loop();
+
 vows.describe("Cradle").addVows({
-    topic: function () {
-        ['rabbits', 'pigs','badgers'].forEach(function (db) {
-            r('DELETE', '/' + db);
-        });
-        r('PUT', '/rabbits');
-        r('PUT', '/pigs');
-        r('PUT', '/pigs/_design/pigs', {
-            _id: '_design/pigs', views: {
-                all: { map: "function (doc) { if (doc.color) emit(doc._id, doc) }" }
-            }
-        });
-        r('PUT', '/pigs/mike', {color: 'pink'});
-        r('PUT', '/rabbits/alex', {color: 'blue'});
-        r('PUT', '/pigs/bill', {color: 'blue'});
-        process.loop();
-    },
     "Default connection settings": {
         topic: function () {
             cradle.setup({
