@@ -37,7 +37,7 @@ function r(method, url, doc) {
     request.addListener('response', function (res) {
         var body = '';
 
-        res.setBodyEncoding('utf8');
+        res.setEncoding('utf8');
         res.addListener('data', function (chunk) {
             body += (chunk || '');
         }).addListener('end', function () {
