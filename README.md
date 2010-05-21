@@ -39,6 +39,11 @@ synopsis
         }
     });
 
+installation
+------------
+
+    $ npm install cradle
+
 API
 ---
 

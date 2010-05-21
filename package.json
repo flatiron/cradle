@@ -5,7 +5,9 @@
   "keywords"      : ["couchdb", "database", "couch"],
   "author"        : "Alexis Sellier <self@cloudhead.net>",
   "contributors"  : [],
-  "dependencies"  : ["vargs"],
-  "lib"           : "lib",
-  "version"       : "0.1.0"
+  "dependencies"  : { "vargs": "*", "vows": ">=0.2.0" },
+  "version"       : "0.1.0",
+  "main"          : "./lib/cradle",
+  "directories"   : { "lib": "./lib", "test": "./test" },
+  "engines"       : { "node": ">=0.1.93" }
 }

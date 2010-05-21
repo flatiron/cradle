@@ -1,6 +1,0 @@
-[submodule "test/vendor/vows"]
-	path = test/vendor/vows
-	url = git://github.com/cloudhead/vows.git
-[submodule "lib/vendor/vargs"]
-	path = lib/vendor/vargs
-	url = git://github.com/cloudhead/vargs.git

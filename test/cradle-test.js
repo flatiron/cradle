@@ -5,8 +5,7 @@ var path = require('path'),
     http = require('http'),
     fs = require('fs');
 
-require.paths.unshift(path.join(__dirname, '..', 'lib'),
-                      path.join(__dirname, 'vendor', 'vows', 'lib'));
+require.paths.unshift(path.join(__dirname, '..', 'lib'));
 
 var vows = require('vows'),
     cradle = require('cradle');
