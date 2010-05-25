@@ -298,6 +298,12 @@ vows.describe("Cradle").addVows({
                     assert.equal(res.id, 'mike');
                 }
             },
+            "head()": {
+                topic: function (db) { db.head('mike', this.callback) },
+                "returns the headers": function (res) {
+                    assert.match(res.etag, /^"\d-[a-z0-9]+"$/);
+                }
+            },
             "insert()": {
                 "with an id & doc": {
                     topic: function (db) {
