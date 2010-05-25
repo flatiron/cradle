@@ -363,6 +363,9 @@ vows.describe("Cradle").addVows({
                     assert.equal(res[0].id, 'pop');
                     assert.equal(res[1].id, 'cap');
                     assert.equal(res[2].id, 'ee');
+                    assert.isString(res[0].rev);
+                    assert.isString(res[1].rev);
+                    assert.isString(res[2].rev);
                 }
             },
             "getting all documents": {
@@ -373,7 +376,13 @@ vows.describe("Cradle").addVows({
                 },
                 "returns a 200": status(200),
                 "returns a list of all docs": function (res) {
-                    assert.ok(res.rows);
+                    assert.isArray(res);
+                    assert.isNumber(res.total_rows);
+                    assert.isNumber(res.offset);
+                    assert.isArray(res.rows);
+                },
+                "which can be iterated upon": function (res) {
+                    assert.isFunction(res.forEach);
                 }
             },
             "updating a document (PUT)": {
@@ -414,13 +423,16 @@ vows.describe("Cradle").addVows({
                 },
                 "returns a 200": status(200),
                 "returns view results": function (res) {
-                    assert.ok(res.rows);
+                    assert.isArray(res.rows);
                     assert.equal(res.rows.length, 2);
                     assert.equal(res.total_rows, 2);
                 },
-                "returns an iterable object": function (res) {
+                "returns an iterable object with key/val pairs": function (res) {
+                    assert.isArray(res);
+                    assert.length(res, 2);
                     res.forEach(function (k, v) {
-                        assert.ok(v);
+                        assert.isObject(v);
+                        assert.isString(k);
                         assert.ok(k === 'mike' || k === 'bill');
                     });
                 },
