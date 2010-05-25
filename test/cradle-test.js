@@ -13,7 +13,7 @@ var vows = require('vows'),
 function status(code) {
     return function (res) {
         assert.ok(res);
-        assert.equal(res._headers.status, code);
+        assert.equal(res.headers.status, code);
     };
 }
 
@@ -498,8 +498,8 @@ vows.describe("Cradle").addVows({
                         db.insert(doc, function (e, res) {
                             var streamer = db.getAttachment('attachment-getter','foo.txt');
                             streamer.addListener('response', function (res) {
-                                response._headers = res.headers;
-                                response._headers.status = res.statusCode;
+                                response.headers = res.headers;
+                                response.headers.status = res.statusCode;
                                 response.body = "";
                             });
                             streamer.addListener('data', function (chunk) { response.body += chunk; });
@@ -509,7 +509,7 @@ vows.describe("Cradle").addVows({
                     },
                     "returns a 200": status(200),
                     "returns the right mime-type in the header": function (res) {
-                        assert.equal(res._headers['content-type'], 'text/plain');
+                        assert.equal(res.headers['content-type'], 'text/plain');
                     },
                     "returns the attachment in the body": function (res) {
                         assert.equal(res.body, "hello world");
@@ -521,8 +521,8 @@ vows.describe("Cradle").addVows({
                         db.insert({_id:'attachment-not-found'}, function (e, res) {
                             var streamer = db.getAttachment('attachment-not-found','foo.txt');
                             streamer.addListener('response', function (res) {
-                                response._headers = res.headers;
-                                response._headers.status = res.statusCode;
+                                response.headers = res.headers;
+                                response.headers.status = res.statusCode;
                                 promise.emit('success', response);
                             });
                         });
