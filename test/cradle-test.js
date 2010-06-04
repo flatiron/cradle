@@ -247,6 +247,26 @@ vows.describe("Cradle").addVows({
                 assert.match(info.version, /\d+\.\d+\.\d+/);
             }
         },
+        "uuids()": {
+            "with count": {
+                topic: function (c) { return c.uuids(42) },
+
+                "returns a 200": status(200),
+                "returns an array of UUIDs": function (uuids) {
+                    assert.isArray(uuids);
+                    assert.length(uuids, 42);
+                }
+            },
+            "without count": {
+                topic: function (c) { return c.uuids() },
+
+                "returns a 200": status(200),
+                "returns an array of UUIDs": function (uuids) {
+                    assert.isArray(uuids);
+                    assert.length(uuids, 1);
+                }
+            }
+        },
         "getting the list of databases": {
             topic: function (c) {
                 return c.databases();
