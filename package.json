@@ -9,5 +9,5 @@
   "version"       : "0.1.4",
   "main"          : "./lib/cradle",
   "directories"   : { "lib": "./lib", "test": "./test" },
-  "engines"       : { "node": ">=0.1.93" }
+  "engines"       : { "node": ">=0.1.95" }
 }
