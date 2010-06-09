@@ -530,4 +530,4 @@ vows.describe("Cradle").addVows({
             }
         }
     }
-});
+}).export(module);
