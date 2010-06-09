@@ -4,6 +4,6 @@ default: test
 # Run all tests
 #
 test: 
-	node test/cradle-test.js
+	vows test/*-test.js
 
 .PHONY: test
