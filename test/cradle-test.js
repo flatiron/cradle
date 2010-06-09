@@ -231,9 +231,9 @@ vows.describe("Cradle").addVows({
                 return c.databases();
             },
             "should contain the 'rabbits' and 'pigs' databases": function (dbs) {
-                assert.ok(dbs.indexOf('rabbits') >= 0);
-                assert.ok(dbs.indexOf('pigs') >= 0);
-                assert.ok(dbs instanceof Array);
+                assert.isArray(dbs);
+                assert.include(dbs, 'rabbits');
+                assert.include(dbs, 'pigs');
             }
         },
         "create()": {
