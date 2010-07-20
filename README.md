@@ -70,7 +70,7 @@ Note that you can also use `cradle.setup` to set a global configuration:
     var db = c.database('starwars');
     db.create();
 
-_You can check if a database exists with the `exists()` method._
+> You can check if a database exists with the `exists()` method.
 
 ### fetching a document _(GET)_ ###
 
@@ -78,7 +78,11 @@ _You can check if a database exists with the `exists()` method._
         sys.puts(doc);
     });
 
-_If you want to get a specific revision for that document, you can pass it as the 2nd parameter to `get()`._
+> If you want to get a specific revision for that document, you can pass it as the 2nd parameter to `get()`.
+
+Cradle is also able to fetch multiple documents if you have a list of ids, just pass an array to `get`:
+
+    db.get(['luke', 'vador'], function (err, doc) { ... });
 
 ### Querying a view ###
 
