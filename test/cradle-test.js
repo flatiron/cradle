@@ -293,6 +293,20 @@ vows.describe("Cradle").addVows({
                         assert.ok(res.rev);
                     }
                 },
+                "with a large doc": {
+                    topic: function (db) {
+                        var text = (function (s) {
+                            for (var i = 0; i < 18; i++) { s += s }
+                            return s;
+                        })('blah');
+
+                        return db.insert('large-bob', {
+                            gender: 'male',
+                            speech: text
+                        });
+                    },
+                    "creates a new document (201)": status(201)
+                },
                 "with a '_design' id": {
                     topic: function (db) {
                         return db.insert('_design/horses', {
