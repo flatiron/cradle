@@ -181,13 +181,10 @@ vows.describe("Cradle").addVows({
             },
             "pulls the revision from the cache if not given": {
                 topic: function (db) {
-                    var promise = new(events.EventEmitter);
+                    var callback = this.callback;
                     db.insert({_id:'attachment-saving-pulls-rev-from-cache'}, function (e, res) {
-                        db.saveAttachment(res.id, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
-                            promise.emit('success', attRes);
-                        });
+                        db.saveAttachment(res.id, 'foo.txt', 'text/plain', 'Foo!', callback);
                     });
-                    return promise;
                 },
                 "and saves successfully": status(201)
             }
@@ -198,7 +195,7 @@ vows.describe("Cradle").addVows({
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "getting server info": {
-            topic: function (c) { return c.info() },
+            topic: function (c) { c.info(this.callback) },
 
             "returns a 200": status(200),
             "returns the version number": function (info) {
@@ -208,7 +205,7 @@ vows.describe("Cradle").addVows({
         },
         "uuids()": {
             "with count": {
-                topic: function (c) { return c.uuids(42) },
+                topic: function (c) { c.uuids(42, this.callback) },
 
                 "returns a 200": status(200),
                 "returns an array of UUIDs": function (uuids) {
@@ -217,7 +214,7 @@ vows.describe("Cradle").addVows({
                 }
             },
             "without count": {
-                topic: function (c) { return c.uuids() },
+                topic: function (c) { c.uuids(this.callback) },
 
                 "returns a 200": status(200),
                 "returns an array of UUIDs": function (uuids) {
@@ -228,7 +225,7 @@ vows.describe("Cradle").addVows({
         },
         "getting the list of databases": {
             topic: function (c) {
-                return c.databases();
+                c.databases(this.callback);
             },
             "should contain the 'rabbits' and 'pigs' databases": function (dbs) {
                 assert.isArray(dbs);
@@ -238,22 +235,22 @@ vows.describe("Cradle").addVows({
         },
         "create()": {
             topic: function (c) {
-                return c.database('badgers').create();
+                c.database('badgers').create(this.callback);
             },
             "returns a 201": status(201),
             "creates a database": {
-                topic: function (res, c) { return c.database('badgers').exists() },
+                topic: function (res, c) { c.database('badgers').exists(this.callback) },
                 "it exists": function (res) { assert.ok(res) }
             }
         },
         "destroy()": {
             topic: function (c) {
-                return c.database('rabbits').destroy();
+                c.database('rabbits').destroy(this.callback);
             },
             "returns a 200": status(200),
             "destroys a database": {
                 topic: function (res, c) {
-                    return c.database('rabbits').exists();
+                    c.database('rabbits').exists(this.callback);
                 },
                 "it doesn't exist anymore": function (res) { assert.ok(! res) }
             }
@@ -263,7 +260,7 @@ vows.describe("Cradle").addVows({
 
             "info()": {
                 topic: function (db) {
-                    return db.info();
+                    db.info(this.callback);
                 },
                 "returns a 200": status(200),
                 "returns database info": function (info) {
@@ -271,7 +268,7 @@ vows.describe("Cradle").addVows({
                 }
             },
             "fetching a document by id (GET)": {
-                topic: function (db) { return db.get('mike') },
+                topic: function (db) { db.get('mike', this.callback) },
                 "returns a 200": status(200),
                 "returns the document": function (res) {
                     assert.equal(res.id, 'mike');
@@ -286,7 +283,7 @@ vows.describe("Cradle").addVows({
             "insert()": {
                 "with an id & doc": {
                     topic: function (db) {
-                        return db.insert('joe', {gender: 'male'});
+                        db.insert('joe', {gender: 'male'}, this.callback);
                     },
                     "creates a new document (201)": status(201),
                     "returns the revision": function (res) {
@@ -300,22 +297,22 @@ vows.describe("Cradle").addVows({
                             return s;
                         })('blah');
 
-                        return db.insert('large-bob', {
+                        db.insert('large-bob', {
                             gender: 'male',
                             speech: text
-                        });
+                        }, this.callback);
                     },
                     "creates a new document (201)": status(201)
                 },
                 "with a '_design' id": {
                     topic: function (db) {
-                        return db.insert('_design/horses', {
+                        db.insert('_design/horses', {
                             all: {
                                 map: function (doc) {
                                     if (doc.speed == 72) emit(null, doc);
                                 }
                             }
-                        });
+                        }, this.callback);
                     },
                     "creates a doc (201)": status(201),
                     "returns the revision": function (res) {
@@ -323,7 +320,7 @@ vows.describe("Cradle").addVows({
                     },
                     "creates a design doc": {
                         topic: function (res, db) {
-                            return db.view('horses/all');
+                            db.view('horses/all', this.callback);
                         },
                         "which can be queried": status(200)
                     }
@@ -332,7 +329,7 @@ vows.describe("Cradle").addVows({
             },
             "calling insert() with an array": {
                 topic: function (db) {
-                    return db.insert([{_id: 'tom'}, {_id: 'flint'}]);
+                    db.insert([{_id: 'tom'}, {_id: 'flint'}], this.callback);
                 },
                 "returns an array of document ids and revs": function (res) {
                     assert.equal(res[0].id, 'tom');
@@ -356,7 +353,7 @@ vows.describe("Cradle").addVows({
             },
             "calling insert() with multiple documents": {
                 topic: function (db) {
-                    return db.insert({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'});
+                    db.insert({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'}, this.callback);
                 },
                 "returns an array of document ids and revs": function (res) {
                     assert.equal(res[0].id, 'pop');
@@ -369,9 +366,7 @@ vows.describe("Cradle").addVows({
             },
             "getting all documents": {
                 topic: function (db) {
-                    var promise = new(events.EventEmitter);
-                    db.all(function (err, res) { promise.emit('success', res);});
-                    return promise;
+                    db.all(this.callback);
                 },
                 "returns a 200": status(200),
                 "returns a list of all docs": function (res) {
@@ -416,9 +411,7 @@ vows.describe("Cradle").addVows({
             },
             "querying a view": {
                 topic: function (db) {
-                    var promise = new(events.EventEmitter);
-                    db.view('pigs/all', function (err, res) { promise.emit('success', res); });
-                    return promise;
+                    db.view('pigs/all', this.callback);
                 },
                 "returns a 200": status(200),
                 "returns view results": function (res) {
@@ -446,12 +439,10 @@ vows.describe("Cradle").addVows({
                 "to an existing document": {
                     "with given data": {
                         topic: function (db) {
-                            var promise = new(events.EventEmitter);
+                            var callback = this.callback;
                             db.insert({_id: 'complete-attachment'}, function (e, res) {
-                                db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', 'Foo!',
-                                    function (res) { promise.emit('success', res) });
+                                db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', 'Foo!', callback);
                             });
-                            return promise;
                         },
                         "returns a 201": status(201),
                         "returns the revision": function (res) {
@@ -461,13 +452,11 @@ vows.describe("Cradle").addVows({
                     },
                     "with streaming data": {
                         topic: function (db) {
-                            var promise = new(events.EventEmitter), filestream;
+                            var callback = this.callback, filestream;
                             db.insert({'_id':'streaming-attachment'}, function (e, res) {
                                 filestream = fs.createReadStream(__dirname + "/../README.md");
-                                db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', filestream,
-                                    function (res) { promise.emit('success', res) });
+                                db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', filestream, callback);
                             })
-                            return promise;
                         },
                         "returns a 201": status(201),
                         "returns the revision": function (res) {
@@ -477,22 +466,20 @@ vows.describe("Cradle").addVows({
                     },
                     "with incorrect revision": {
                         topic: function (db) {
-                            var promise = new(events.EventEmitter), oldRev;
+                            var callback = this.callback, oldRev;
                             db.insert({_id: 'attachment-incorrect-revision'}, function (e, res) {
                                 oldRev = res.rev;
                                 db.insert({_id: 'attachment-incorrect-revision', _rev:res.rev}, function (e, res) {
-                                    db.saveAttachment({_id: res.id, _rev: oldRev}, 'foo.txt', 'text/plain', 'Foo!',
-                                        function (res) { promise.emit('success', res); });
+                                    db.saveAttachment({_id: res.id, _rev: oldRev}, 'foo.txt', 'text/plain', 'Foo!', callback);
                                 });
                             });
-                            return promise;
                         },
                         "returns a 409": status(409)
                     }
                 },
                 "to a non-existing document": {
                     topic: function (db) {
-                        return db.saveAttachment('standalone-attachment', 'foo.txt', 'text/plain', 'Foo!');
+                        db.saveAttachment('standalone-attachment', 'foo.txt', 'text/plain', 'Foo!', this.callback);
                     },
                     "returns a 201": status(201),
                     "returns the revision": function (res) {
