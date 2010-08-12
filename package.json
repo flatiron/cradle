@@ -6,7 +6,7 @@
   "author"        : "Alexis Sellier <self@cloudhead.net>",
   "contributors"  : [],
   "dependencies"  : { "vargs": ">=0.1.0", "vows": ">=0.4.0" },
-  "version"       : "0.2.0",
+  "version"       : "0.2.1",
   "main"          : "./lib/cradle",
   "directories"   : { "test": "./test" },
   "engines"       : { "node": ">=0.1.100" }
