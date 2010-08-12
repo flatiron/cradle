@@ -137,14 +137,12 @@ vows.describe("Cradle").addVows({
         "saveAttachment()": {
             "updates the cache": {
                 topic: function (db) {
-                    var promise = new(events.EventEmitter);
-                    db.insert({_id:'attachment-cacher'}, function (e,res) {
-                        db.saveAttachment({_id:res.id, _rev:res.rev}, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
-                            var cached = mixin({}, db.cache.store[res.id]);
-                            promise.emit('success', cached);
+                    var that = this;
+                    db.insert({_id:'attachment-cacher'}, function (e, res) {
+                        db.saveAttachment({ _id: res.id, _rev: res.rev }, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
+                            that.callback(null, db.cache.get(res.id));
                         });
                     });
-                    return promise;
                 },
                 "with the revision": function (cached) {
                     assert.match(cached._rev, /^2-/);
@@ -158,14 +156,11 @@ vows.describe("Cradle").addVows({
                 },
                 "and is valid enough to re-save": {
                     topic: function (cached, db) {
-                        var promise = new(events.EventEmitter);
+                        var that = this
                         db.insert(mixin({foo:'bar'}, cached), function (e,res) {
                             db.cache.purge(cached._id);
-                            db.get(cached._id, function (e, res) {
-                                promise.emit('success', res);
-                            });
+                            db.get(cached._id, that.callback);
                         });
-                        return promise;
                     },
                     "has the attachment": function (res) {
                         var att = res._attachments['foo.txt'];
