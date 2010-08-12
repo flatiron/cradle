@@ -50,6 +50,13 @@ vows.describe('cradle/Response').addBatch({
             'should respond to both `id` and `_id`': function (topic) {
                 assert.equal (topic.id,  'f6av8');
                 assert.equal (topic._id, 'f6av8');
+            },
+            'should respond to both `rev` and `_rev`': function (topic) {
+                assert.equal (topic.rev,  '2-76be');
+                assert.equal (topic._rev, '2-76be');
+            },
+            'should have Response as its constructor': function (topic) {
+                assert.equal (topic.constructor, cradle.Response);
             }
         }
     }
