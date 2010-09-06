@@ -84,7 +84,18 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
 
     db.get(['luke', 'vador'], function (err, doc) { ... });
 
-#### Querying a view with a specific key ####
+
+
+### Querying a view ###
+
+    db.view('characters/all', function (err, res) {
+        res.forEach(function (row) {
+            sys.puts(row.name + " is on the " +
+                     row.force + " side of the force.");
+        });
+    });
+
+#### Querying a row with a specific key ####
 
 If you want to fetch a specific row from a design view that will simulate this couchdb call 
 
@@ -94,15 +105,6 @@ You do this
 
     db.get('/docs/by_id', {key:id}, function(err,doc){
         title=doc[0].title
-    });
-
-### Querying a view ###
-
-    db.view('characters/all', function (err, res) {
-        res.forEach(function (row) {
-            sys.puts(row.name + " is on the " +
-                     row.force + " side of the force.");
-        });
     });
 
 ### creating/updating documents ###
