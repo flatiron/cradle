@@ -83,6 +83,16 @@ Note that you can also use `cradle.setup` to set a global configuration:
 Cradle is also able to fetch multiple documents if you have a list of ids, just pass an array to `get`:
 
     db.get(['luke', 'vador'], function (err, doc) { ... });
+  
+If you want to fetch a specific row from a design view that will simulate this couchdb call 
+
+    /_design/docs/_view/by_id/?key="5"
+
+You do this 
+
+  db.get('/docs/by_id', {key:id}, function(err,doc){
+    title=doc[0].title
+  });
 
 ### Querying a view ###
 
