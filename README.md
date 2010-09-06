@@ -90,9 +90,9 @@ If you want to fetch a specific row from a design view that will simulate this c
 
 You do this 
 
-  db.get('/docs/by_id', {key:id}, function(err,doc){
-    title=doc[0].title
-  });
+    db.get('/docs/by_id', {key:id}, function(err,doc){
+        title=doc[0].title
+    });
 
 ### Querying a view ###
 
