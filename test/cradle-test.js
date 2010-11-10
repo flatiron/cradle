@@ -27,7 +27,7 @@ function mixin(target) {
 var cradle = require('cradle');
 var vows = require('vows');
 
-vows.describe("Cradle").addVows({
+vows.describe("Cradle").addBatch({
     "Default connection settings": {
         topic: function () {
             cradle.setup({
