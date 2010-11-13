@@ -93,6 +93,20 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
         });
     });
 
+### Invoke an update ###
+
+    db.update('characters/equip', "luke", {items:["lightsaber"]}, function (err, res) {
+        sys.puts(res.ok || res.error);
+    });
+
+### Querying a list ###
+
+    db.list('characters/equipment/darkside', function (err, res) {
+        Object.keys(res).forEach(function (name) {
+            sys.puts(name + " has " + res[name]);
+        });
+    });
+
 ### creating/updating documents ###
 
 In general, document creation is done with the `insert()` method, while updating/overwriting is done with `save()`.
@@ -144,26 +158,48 @@ If you want to insert more than one document at a time, for performance reasons,
         // Handle response
     });
 
-#### creating views ####
+#### creating views, updates and lists ####
 
 Here we create a design document named 'characters', with two views: 'all' and 'darkside'.
 
     db.insert('_design/characters', {
-        all: {
-            map: function (doc) {
-                if (doc.name) emit(doc.name, doc);
-            }
-        },
-        darkside: {
-            map: function (doc) {
-                if (doc.name && doc.force == 'dark') {
-                    emit(null, doc);
+        views: {
+            all: {
+                map: function (doc) {
+                    if (doc.name) emit(doc.name, doc);
+                }
+            },
+            darkside: {
+                map: function (doc) {
+                    if (doc.name && doc.force == 'dark') {
+                        emit(null, doc);
+                    }
                 }
             }
-        }
+        },
+        updates: {
+            equip: function (doc, req) {
+                if (!doc) return [null, '{"error":"no character given."}'];
+                var items = JSON.parse(req.body).items || [];
+                doc.items = items.concat(doc.items || []);
+                return [doc, '{"ok":"' + doc.name + ' got ' + items + '"}'];
+            }
+        },
+        lists: {
+            equipment: function (head, req) {
+                send('{');
+                var n = 0;
+                while(( row = getRow() )) {
+                    if(row.value.items) {
+                        if(n++) send(",");
+                        send('"'+row.value.name'":'+JSON.stringify(row.value.items));
+                    }
+                send("}");
+            }
+        },
     });
 
-These views can later be queried with `db.view('characters/all')`, for example.
+These designs can later be queried with `db.view('characters/all')`, for example.
 
 ### removing documents _(DELETE)_ ###
 
