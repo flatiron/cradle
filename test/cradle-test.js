@@ -27,7 +27,7 @@ function mixin(target) {
 var cradle = require('cradle');
 var vows = require('vows');
 
-vows.describe("Cradle").addVows({
+vows.describe("Cradle").addBatch({
     "Default connection settings": {
         topic: function () {
             cradle.setup({
@@ -81,10 +81,10 @@ vows.describe("Cradle").addVows({
         topic: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: true}).database('pigs');
         },
-        "insert()": {
+        "save()": {
             topic: function (db) {
                 var promise = new(events.EventEmitter);
-                db.insert('bob', {ears: true}, function (e, res) {
+                db.save('bob', {ears: true}, function (e, res) {
                     promise.emit("success", db);
                 });
                 return promise;
@@ -108,6 +108,37 @@ vows.describe("Cradle").addVows({
                 "caches the updated document": function (e, res, doc) {
                     assert.ok(doc);
                     assert.equal(doc.size, 12);
+                    assert.isUndefined(doc.ears);
+                }
+            }
+        },
+        "merge()": {
+            topic: function (db) {
+                var promise = new(events.EventEmitter);
+                db.save('billy', {ears: true}, function (e, res) {
+                    promise.emit("success", db);
+                });
+                return promise;
+            },
+            "should write through the cache": function (db) {
+                assert.ok(db.cache.has('bob'));
+                assert.ok(db.cache.get('bob')._rev);
+            },
+            "and": {
+                topic: function (db) {
+                    var promise = new(events.EventEmitter);
+                    db.merge('billy', {size: 12}, function (e, res) {
+                        promise.emit('success', res, db.cache.get('billy'));
+                    });
+                    return promise;
+                },
+                "return a 201": status(201),
+                "allow an overwrite": function (res) {
+                   assert.match(res.rev, /^2/);
+                },
+                "caches the updated document": function (e, res, doc) {
+                    assert.ok(doc);
+                    assert.equal(doc.size, 12);
                     assert.equal(doc.ears, true);
                 }
             }
@@ -115,7 +146,7 @@ vows.describe("Cradle").addVows({
         "remove()": {
             topic: function (db) {
                 var promise = new(events.EventEmitter);
-                db.insert('bruno', {}, function (e, res) {
+                db.save('bruno', {}, function (e, res) {
                     promise.emit("success", db);
                 });
                 return promise;
@@ -138,7 +169,7 @@ vows.describe("Cradle").addVows({
             "updates the cache": {
                 topic: function (db) {
                     var that = this;
-                    db.insert({_id:'attachment-cacher'}, function (e, res) {
+                    db.save({_id:'attachment-cacher'}, function (e, res) {
                         db.saveAttachment({ _id: res.id, _rev: res.rev }, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
                             that.callback(null, db.cache.get(res.id));
                         });
@@ -157,7 +188,7 @@ vows.describe("Cradle").addVows({
                 "and is valid enough to re-save": {
                     topic: function (cached, db) {
                         var that = this
-                        db.insert(mixin({foo:'bar'}, cached), function (e,res) {
+                        db.save(mixin({foo:'bar'}, cached), function (e,res) {
                             db.cache.purge(cached._id);
                             db.get(cached._id, that.callback);
                         });
@@ -177,7 +208,7 @@ vows.describe("Cradle").addVows({
             "pulls the revision from the cache if not given": {
                 topic: function (db) {
                     var callback = this.callback;
-                    db.insert({_id:'attachment-saving-pulls-rev-from-cache'}, function (e, res) {
+                    db.save({_id:'attachment-saving-pulls-rev-from-cache'}, function (e, res) {
                         db.saveAttachment(res.id, 'foo.txt', 'text/plain', 'Foo!', callback);
                     });
                 },
@@ -275,10 +306,10 @@ vows.describe("Cradle").addVows({
                     assert.match(res.etag, /^"\d-[a-z0-9]+"$/);
                 }
             },
-            "insert()": {
+            "save()": {
                 "with an id & doc": {
                     topic: function (db) {
-                        db.insert('joe', {gender: 'male'}, this.callback);
+                        db.save('joe', {gender: 'male'}, this.callback);
                     },
                     "creates a new document (201)": status(201),
                     "returns the revision": function (res) {
@@ -292,7 +323,7 @@ vows.describe("Cradle").addVows({
                             return s;
                         })('blah');
 
-                        db.insert('large-bob', {
+                        db.save('large-bob', {
                             gender: 'male',
                             speech: text
                         }, this.callback);
@@ -301,7 +332,7 @@ vows.describe("Cradle").addVows({
                 },
                 "with a '_design' id": {
                     topic: function (db) {
-                        db.insert('_design/horses', {
+                        db.save('_design/horses', {
                             all: {
                                 map: function (doc) {
                                     if (doc.speed == 72) emit(null, doc);
@@ -322,9 +353,9 @@ vows.describe("Cradle").addVows({
                 },
                 "without an id (POST)": {},
             },
-            "calling insert() with an array": {
+            "calling save() with an array": {
                 topic: function (db) {
-                    db.insert([{_id: 'tom'}, {_id: 'flint'}], this.callback);
+                    db.save([{_id: 'tom'}, {_id: 'flint'}], this.callback);
                 },
                 "returns an array of document ids and revs": function (res) {
                     assert.equal(res[0].id, 'tom');
@@ -344,19 +375,6 @@ vows.describe("Cradle").addVows({
                         assert.ok(tom._id);
                         assert.ok(flint._id);
                     }
-                }
-            },
-            "calling insert() with multiple documents": {
-                topic: function (db) {
-                    db.insert({_id: 'pop'}, {_id: 'cap'}, {_id: 'ee'}, this.callback);
-                },
-                "returns an array of document ids and revs": function (res) {
-                    assert.equal(res[0].id, 'pop');
-                    assert.equal(res[1].id, 'cap');
-                    assert.equal(res[2].id, 'ee');
-                    assert.isString(res[0].rev);
-                    assert.isString(res[1].rev);
-                    assert.isString(res[2].rev);
                 }
             },
             "getting all documents": {
@@ -435,7 +453,7 @@ vows.describe("Cradle").addVows({
                     "with given data": {
                         topic: function (db) {
                             var callback = this.callback;
-                            db.insert({_id: 'complete-attachment'}, function (e, res) {
+                            db.save({_id: 'complete-attachment'}, function (e, res) {
                                 db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', 'Foo!', callback);
                             });
                         },
@@ -448,7 +466,7 @@ vows.describe("Cradle").addVows({
                     "with streaming data": {
                         topic: function (db) {
                             var callback = this.callback, filestream;
-                            db.insert({'_id':'streaming-attachment'}, function (e, res) {
+                            db.save({'_id':'streaming-attachment'}, function (e, res) {
                                 filestream = fs.createReadStream(__dirname + "/../README.md");
                                 db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', filestream, callback);
                             })
@@ -462,9 +480,9 @@ vows.describe("Cradle").addVows({
                     "with incorrect revision": {
                         topic: function (db) {
                             var callback = this.callback, oldRev;
-                            db.insert({_id: 'attachment-incorrect-revision'}, function (e, res) {
+                            db.save({_id: 'attachment-incorrect-revision'}, function (e, res) {
                                 oldRev = res.rev;
-                                db.insert({_id: 'attachment-incorrect-revision', _rev:res.rev}, function (e, res) {
+                                db.save({_id: 'attachment-incorrect-revision', _rev:res.rev}, function (e, res) {
                                     db.saveAttachment({_id: res.id, _rev: oldRev}, 'foo.txt', 'text/plain', 'Foo!', callback);
                                 });
                             });
@@ -488,7 +506,7 @@ vows.describe("Cradle").addVows({
                     topic: function (db) {
                         var promise = new(events.EventEmitter), response = {};
                         doc = {_id:'attachment-getter', _attachments:{ "foo.txt":{content_type:"text/plain", data:"aGVsbG8gd29ybGQ="} }};
-                        db.insert(doc, function (e, res) {
+                        db.save(doc, function (e, res) {
                             var streamer = db.getAttachment('attachment-getter','foo.txt');
                             streamer.addListener('response', function (res) {
                                 response.headers = res.headers;
@@ -511,7 +529,7 @@ vows.describe("Cradle").addVows({
                 "when not found": {
                     topic: function (db) {
                         var promise = new(events.EventEmitter), response = {};
-                        db.insert({_id:'attachment-not-found'}, function (e, res) {
+                        db.save({_id:'attachment-not-found'}, function (e, res) {
                             var streamer = db.getAttachment('attachment-not-found','foo.txt');
                             streamer.addListener('response', function (res) {
                                 response.headers = res.headers;

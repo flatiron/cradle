@@ -15,7 +15,7 @@ philosophy
 ----------
 
 The key concept here is the common ground shared by CouchDB and Node.js, that is, _javascript_. The other important aspect of this marriage is the asynchronous behaviors of both these technologies. Cradle tries to make use of these symmetries, whenever it can.
-Cradle's API, although closely knit with CouchDB's, isn't overly so. Whenever the API can be abstracted in a friendlier, simpler way, that's the route it takes. So even though a large part of the `Cradle <--> CouchDB` mappings are one to one, some Cradle functions, such as `insert()`, can perform more than one operation, depending on how they are used.
+Cradle's API, although closely knit with CouchDB's, isn't overly so. Whenever the API can be abstracted in a friendlier, simpler way, that's the route it takes. So even though a large part of the `Cradle <--> CouchDB` mappings are one to one, some Cradle functions, such as `save()`, can perform more than one operation, depending on how they are used.
 
 synopsis
 --------
@@ -28,7 +28,7 @@ synopsis
         assert.equal(doc.force, 'dark');
     });
 
-    db.insert('skywalker', {
+    db.save('skywalker', {
         force: 'light',
         name: 'Luke Skywalker'
     }, function (err, res) {
@@ -95,11 +95,11 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
 
 ### creating/updating documents ###
 
-In general, document creation is done with the `insert()` method, while updating/overwriting is done with `save()`.
+In general, document creation is done with the `save()` method, while updating is done with `merge()`.
 
 #### creating with an id _(PUT)_ ####
 
-    db.insert('vador', {
+    db.save('vador', {
         name: 'darth', force: 'dark'
     }, function (err, res) {
         // Handle response
@@ -107,7 +107,7 @@ In general, document creation is done with the `insert()` method, while updating
 
 #### creating without an id _(POST)_ ####
 
-    db.insert({
+    db.save({
         force: 'dark', name: 'Darth'
     }, function (err, res) {
         // Handle response
@@ -121,22 +121,22 @@ In general, document creation is done with the `insert()` method, while updating
         // Handle response
     });
 
-Note that when saving a document this way, CouchDB overwrites the existing document with the new one. If you want to update only certain fields of the document, you have to fetch it first (with `get`), make your changes, then resave it with the above method.
+Note that when saving a document this way, CouchDB overwrites the existing document with the new one. If you want to update only certain fields of the document, you have to fetch it first (with `get`), make your changes, then resave the modified document with the above method.
 
-However, if a `_rev` isn't explicitly passed, and Cradle has a cached version of the document in storage, it will try to merge your changes, and save the new version to the database.
+If you only want to update one or more attributes, and leave the others untouched, you can use the `merge()` method: 
 
-    db.save('luke', {jedi: true}, function (err, res) {
+    db.merge('luke', {jedi: true}, function (err, res) {
         // Luke is now a jedi,
         // but remains on the dark side of the force.
     });
 
-This only works because we previously saved a full version of 'luke', and the `cache` option is enabled.
+Note that we didn't pass a `_rev`, this only works because we previously saved a full version of 'luke', and the `cache` option is enabled.
 
 #### bulk insertion ####
 
-If you want to insert more than one document at a time, for performance reasons, you can pass an array to `insert()`:
+If you want to insert more than one document at a time, for performance reasons, you can pass an array to `save()`:
 
-    db.insert([
+    db.save([
         {name: 'Yoda'},
         {name: 'Han Solo'},
         {name: 'Leia'}
@@ -148,7 +148,7 @@ If you want to insert more than one document at a time, for performance reasons,
 
 Here we create a design document named 'characters', with two views: 'all' and 'darkside'.
 
-    db.insert('_design/characters', {
+    db.save('_design/characters', {
         all: {
             map: function (doc) {
                 if (doc.name) emit(doc.name, doc);

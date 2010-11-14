@@ -47,5 +47,3 @@ function r(method, url, doc) {
         }
     });
 });
-
-process.loop();
