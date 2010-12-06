@@ -21,7 +21,7 @@ synopsis
 --------
 
     var cradle = require('cradle');
-    var db = new(cradle.Connection).database('starwars');
+    var db = new(cradle.Connection)().database('starwars');
 
     db.get('vador', function (err, doc) {
         doc.name; // 'Darth Vador'
@@ -217,7 +217,7 @@ Other API methods
 
 ### CouchDB Server level ###
 
-    new(cradle.Connection).*
+    new(cradle.Connection)().*
 
 - `databases()`: Get list of databases
 - `config()`: Get server config
@@ -228,7 +228,7 @@ Other API methods
 
 ### database level ###
 
-    new(cradle.Connection).database('starwars').*
+    new(cradle.Connection)().database('starwars').*
 
 - `info()`: Database information
 - `all()`: Get all documents

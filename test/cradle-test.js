@@ -10,9 +10,9 @@ require('./scripts/prepare-db');
 require.paths.unshift(path.join(__dirname, '..', 'lib'));
 
 function status(code) {
-    return function (res) {
-        assert.ok(res);
-        assert.equal(res.headers.status, code);
+    return function (e, res) {
+        assert.ok(res || e);
+        assert.equal((res || e).headers.status, code);
     };
 }
 
@@ -298,6 +298,15 @@ vows.describe("Cradle").addBatch({
                 "returns a 200": status(200),
                 "returns the document": function (res) {
                     assert.equal(res.id, 'mike');
+                },
+                "when not found": {
+                    topic: function (_, db) { db.get('tyler', this.callback) },
+                    "returns a 404": status(404),
+                    "returns the error": function (err, res) {
+                        assert.isObject(err);
+                        assert.isObject(err.headers);
+                        assert.isUndefined(res);
+                    },
                 }
             },
             "head()": {
