@@ -71,6 +71,14 @@ vows.describe("Cradle").addBatch({
                 assert.equal(c.port, 911);
                 assert.equal(c.options.raw, true);
             }
+        },
+        "with a host and port and protocol passed to Connection": {
+            topic: function () { return new(cradle.Connection)("http://4.4.4.4", 911, {raw: true}) },
+            "should override the defaults": function (c) {
+                assert.equal(c.host, '4.4.4.4');
+                assert.equal(c.port, 911);
+                assert.equal(c.options.raw, true);
+            }
         }
     },
 
