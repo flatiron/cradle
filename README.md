@@ -212,6 +212,38 @@ To remove a document, you call the `remove()` method, passing the latest documen
 
 If `remove` is called without a revision, and the document was recently fetched from the database, it will attempt to use the cached document's revision, providing caching is enabled.
 
+Changes API
+-----------
+
+For a one-time `_changes` query, simply call `db.changes` with a callback:
+
+    db.changes(function (list) {
+        list.forEach(function (change) { console.log(change) });    
+    });
+
+Or if you want to see changes since a specific sequence number:
+
+    db.changes({ since: 42 }, function (list) {
+        ...
+    });
+
+The callback will receive the list of changes as an *Array*. If you want to include
+the affected documents, simply pass `include_docs: true` in the options.
+
+### Streaming #
+
+You can also *stream* changes, by calling `db.changes` without the callback:
+
+    db.changes({ since: 42 }).on('response', function (res) {
+        res.on('data', function (change) {
+            console.log(change);
+        });
+        res.on('end', function () { ... });
+    });
+
+In this case, it returns an `EventEmitter`, which behaves very similarly to node's `Stream` API.
+
+
 Other API methods
 -----------------
 
