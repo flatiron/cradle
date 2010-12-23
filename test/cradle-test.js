@@ -368,6 +368,14 @@ vows.describe("Cradle").addBatch({
                         "which can be queried": status(200)
                     }
                 },
+                "with including DBCS chars": {
+                   topic: function (db){
+                      db.save('dbcs', {
+                         name: "ボブ"  // 'bob' in DBCS chars
+                      }, this.callback);
+                   },
+                   "creates a new document (201)": status(201)
+                },
                 "without an id (POST)": {},
             },
             "calling save() with an array": {
