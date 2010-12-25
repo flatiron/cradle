@@ -333,6 +333,12 @@ vows.describe("Cradle").addBatch({
                         assert.ok(res.rev);
                     }
                 },
+                "with a doc containing non-ASCII characters": {
+                    topic: function(db) {
+                        db.save('john', {umlauts: 'äöü'}, this.callback);
+                    },
+                    "creates a new document (201)": status(201)
+                },
                 "with a large doc": {
                     topic: function (db) {
                         var text = (function (s) {
