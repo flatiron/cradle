@@ -67,8 +67,9 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 ### connecting to hosted database ###
 
-When connecting to a couchdb in the cloud eg Cloundant or Couchone. The options object needs to be configured.
-Note that you must leave out the http or https in the connection string. Cradle will do that for you. An Example connection is below
+When connecting to a couchDB in the cloud eg Cloundant or Couchone. The options object needs to be configured as below.
+You must leave out the http or https in the connection string as cradle will add the appropriate one for you. 
+An Example connection is below
 
     var db = new (cradle.Connection)('your_url','80',{
                                                         ssl: true, 
