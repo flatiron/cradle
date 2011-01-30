@@ -176,6 +176,20 @@ To remove a document, you call the `remove()` method, passing the latest documen
 
 If `remove` is called without a revision, and the document was recently fetched from the database, it will attempt to use the cached document's revision, providing caching is enabled.
 
+Connecting with authentication and SSL
+--------------------------------------
+
+    var connection = new(cradle.Connection)('https://couch.io', 443, {
+        auth: { username: 'john', password: 'fha82l' }
+    });
+
+or
+
+    var connection = new(cradle.Connection)('couch.io', 443, {
+        secure: true,
+        auth: { username: 'john', password: 'fha82l' }
+    });
+
 Changes API
 -----------
 
