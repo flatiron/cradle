@@ -60,7 +60,7 @@ _Defaults to `127.0.0.1:5984`_
 
 Note that you can also use `cradle.setup` to set a global configuration:
 
-    cradle.setup({host: 'http://living-room.couch',
+    cradle.setup({host: 'living-room.couch',
                   options: {cache: true, raw: false}});
     var c = new(cradle.Connection),
        cc = new(cradle.Connection)('173.45.66.92');
@@ -221,6 +221,7 @@ Other API methods
 - `stats()`: Statistics overview
 - `activeTasks()`: Get list of currently active tasks
 - `uuids(count)`: Get _count_ list of UUIDs
+- `replicate(options)`: Replicate a database.
 
 ### database level ###
 
@@ -231,4 +232,5 @@ Other API methods
 - `allBySeq()`: Get all documents by sequence
 - `compact()`: Compact database
 - `viewCleanup()`: Cleanup old view data
+- `replicate(target, options)`: Replicate this database to `target`.
 

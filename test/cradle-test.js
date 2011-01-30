@@ -67,17 +67,18 @@ vows.describe("Cradle").addBatch({
             }
         },
         "with a host and port and protocol passed to Connection": {
-            topic: function () { return new(cradle.Connection)("http://4.4.4.4", 911, {raw: true}) },
+            topic: function () { return new(cradle.Connection)("http://4.4.4.4", 911, {raw: true, secure: true}) },
             "should override the defaults": function (c) {
                 assert.equal(c.host, '4.4.4.4');
                 assert.equal(c.port, 911);
                 assert.equal(c.options.raw, true);
+                assert.equal(c.options.secure, true);
             }
         },
         "with a host and port passed as an object to Connection": {
             topic: function () { return new(cradle.Connection)({ host: "https://4.4.4.4", port: 911, raw: true }) },
             "should override the defaults": function (c) {
-                assert.equal(c.options.ssl, true);
+                assert.equal(c.options.secure, true);
                 assert.equal(c.host, '4.4.4.4');
                 assert.equal(c.port, 911);
                 assert.equal(c.options.raw, true);
@@ -85,9 +86,9 @@ vows.describe("Cradle").addBatch({
         },
         "with a the 'https' protocol": {
             topic: function () { return new(cradle.Connection)("https://couch.io", 5984) },
-            "should set 'ssl' to `true`": function (c) {
+            "should set 'secure' to `true`": function (c) {
                 assert.equal(c.protocol, 'https');
-                assert.equal(c.options.ssl, true);
+                assert.equal(c.options.secure, true);
                 assert.equal(c.host, 'couch.io');
                 assert.equal(c.port, 5984);
             }
