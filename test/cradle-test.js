@@ -38,7 +38,8 @@ vows.describe("Cradle").addBatch({
             return new(cradle.Connection);
         },
         "should be carried on to new Connections": function (c) {
-            assert.equal(c.host, "http://cloudhead.io");
+            assert.equal(c.host, "cloudhead.io");
+            assert.equal(c.protocol, "http");
             assert.equal(c.port, 4242);
             assert.equal(c.options.milk, 'white');
             assert.equal(c.options.cache, true);
@@ -57,13 +58,6 @@ vows.describe("Cradle").addBatch({
                 assert.equal(c.port, 9696);
             }
         },
-        "with a host and port passed as a string to Connection": {
-            topic: function () { return new(cradle.Connection)("8.8.8.8:4141") },
-            "should override the defaults": function (c) {
-                assert.equal(c.host, '8.8.8.8');
-                assert.equal(c.port, 4141);
-            }
-        },
         "with a host, port and options passed to Connection": {
             topic: function () { return new(cradle.Connection)("4.4.4.4", 911, {raw: true}) },
             "should override the defaults": function (c) {
@@ -79,7 +73,25 @@ vows.describe("Cradle").addBatch({
                 assert.equal(c.port, 911);
                 assert.equal(c.options.raw, true);
             }
-        }
+        },
+        "with a host and port passed as an object to Connection": {
+            topic: function () { return new(cradle.Connection)({ host: "https://4.4.4.4", port: 911, raw: true }) },
+            "should override the defaults": function (c) {
+                assert.equal(c.options.ssl, true);
+                assert.equal(c.host, '4.4.4.4');
+                assert.equal(c.port, 911);
+                assert.equal(c.options.raw, true);
+            }
+        },
+        "with a the 'https' protocol": {
+            topic: function () { return new(cradle.Connection)("https://couch.io", 5984) },
+            "should set 'ssl' to `true`": function (c) {
+                assert.equal(c.protocol, 'https');
+                assert.equal(c.options.ssl, true);
+                assert.equal(c.host, 'couch.io');
+                assert.equal(c.port, 5984);
+            }
+        },
     },
 
     //
