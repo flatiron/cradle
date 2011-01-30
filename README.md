@@ -23,8 +23,8 @@ synopsis
     var cradle = require('cradle');
     var db = new(cradle.Connection)().database('starwars');
 
-    db.get('vador', function (err, doc) {
-        doc.name; // 'Darth Vador'
+    db.get('vader', function (err, doc) {
+        doc.name; // 'Darth Vader'
         assert.equal(doc.force, 'dark');
     });
 
@@ -74,7 +74,7 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 ### fetching a document _(GET)_ ###
 
-    db.get('vador', function (err, doc) {
+    db.get('vader', function (err, doc) {
         sys.puts(doc);
     });
 
@@ -82,7 +82,7 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 Cradle is also able to fetch multiple documents if you have a list of ids, just pass an array to `get`:
 
-    db.get(['luke', 'vador'], function (err, doc) { ... });
+    db.get(['luke', 'vader'], function (err, doc) { ... });
 
 ### Querying a view ###
 
@@ -99,7 +99,7 @@ In general, document creation is done with the `save()` method, while updating i
 
 #### creating with an id _(PUT)_ ####
 
-    db.save('vador', {
+    db.save('vader', {
         name: 'darth', force: 'dark'
     }, function (err, res) {
         // Handle response
