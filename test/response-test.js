@@ -57,6 +57,18 @@ vows.describe('cradle/Response').addBatch({
             },
             'should have Response as its constructor': function (topic) {
                 assert.equal (topic.constructor, cradle.Response);
+            },
+            'when modifying & adding keys': {
+                topic: function (response) {
+                    response.hair = 'blue';
+                    response.age = 88;
+                    return response;
+                },
+                'should return the modified document with toJSON': function (response) {
+                    var json = JSON.parse(JSON.stringify(response));
+                    assert.equal(json.age, 88);
+                    assert.equal(json.hair, 'blue');
+                }
             }
         }
     }
