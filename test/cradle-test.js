@@ -484,6 +484,37 @@ vows.describe("Cradle").addBatch({
 
                 }
             },
+            // same as the above test, but with a temporary view
+            "querying a temporary view": {
+                topic: function (db) {
+                    db.temporaryView({
+                        map: function (doc) {
+                            if (doc.color) emit(doc._id, doc);
+                        }
+                    }, this.callback);
+                },
+                "returns a 200": status(200),
+                "returns view results": function (res) {
+                    assert.isArray(res.rows);
+                    assert.equal(res.rows.length, 2);
+                    assert.equal(res.total_rows, 2);
+                },
+                "returns an iterable object with key/val pairs": function (res) {
+                    assert.isArray(res);
+                    assert.length(res, 2);
+                    res.forEach(function (k, v) {
+                        assert.isObject(v);
+                        assert.isString(k);
+                        assert.ok(k === 'mike' || k === 'bill');
+                    });
+                },
+                "with options": {
+
+                },
+                "with a start & end key": {
+
+                }
+            },
             "putting an attachment": {
                 "to an existing document": {
                     "with given data": {

@@ -165,6 +165,16 @@ Here we create a design document named 'characters', with two views: 'all' and '
 
 These views can later be queried with `db.view('characters/all')`, for example.
 
+Here we create a temporary view. WARNING: do not use this in production as it is extremely slow (use it to test views).
+    db.temporaryView({
+        map: function(doc) {
+          if (doc.color) emit(doc._id, doc);
+        }
+      }, function (err, res) {
+        if (err) console.log(err);
+        console.log(res);
+    });
+
 ### removing documents _(DELETE)_ ###
 
 To remove a document, you call the `remove()` method, passing the latest document revision.
