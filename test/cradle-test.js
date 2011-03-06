@@ -191,7 +191,7 @@ vows.describe("Cradle").addBatch({
                 topic: function (db) {
                     var that = this;
                     db.save({_id:'attachment-cacher'}, function (e, res) {
-                        db.saveAttachment({ _id: res.id, _rev: res.rev }, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
+                        db.saveAttachment(res.id, res.rev, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
                             that.callback(null, db.cache.get(res.id));
                         });
                     });
@@ -230,7 +230,7 @@ vows.describe("Cradle").addBatch({
                 topic: function (db) {
                     var callback = this.callback;
                     db.save({_id:'attachment-saving-pulls-rev-from-cache'}, function (e, res) {
-                        db.saveAttachment(res.id, 'foo.txt', 'text/plain', 'Foo!', callback);
+                        db.saveAttachment(res.id, null, 'foo.txt', 'text/plain', 'Foo!', callback);
                     });
                 },
                 "and saves successfully": status(201)
@@ -521,7 +521,7 @@ vows.describe("Cradle").addBatch({
                         topic: function (db) {
                             var callback = this.callback;
                             db.save({_id: 'complete-attachment'}, function (e, res) {
-                                db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', 'Foo!', callback);
+                                db.saveAttachment(res.id, res.rev, 'foo.txt', 'text/plain', 'Foo!', callback);
                             });
                         },
                         "returns a 201": status(201),
@@ -535,7 +535,7 @@ vows.describe("Cradle").addBatch({
                             var callback = this.callback, filestream;
                             db.save({'_id':'streaming-attachment'}, function (e, res) {
                                 filestream = fs.createReadStream(__dirname + "/../README.md");
-                                db.saveAttachment({_id: res.id, _rev: res.rev}, 'foo.txt', 'text/plain', filestream, callback);
+                                db.saveAttachment(res.id, res.rev, 'foo.txt', 'text/plain', filestream, callback);
                             })
                         },
                         "returns a 201": status(201),
@@ -550,7 +550,7 @@ vows.describe("Cradle").addBatch({
                             db.save({_id: 'attachment-incorrect-revision'}, function (e, res) {
                                 oldRev = res.rev;
                                 db.save({_id: 'attachment-incorrect-revision', _rev:res.rev}, function (e, res) {
-                                    db.saveAttachment({_id: res.id, _rev: oldRev}, 'foo.txt', 'text/plain', 'Foo!', callback);
+                                    db.saveAttachment(res.id, oldRev, 'foo.txt', 'text/plain', 'Foo!', callback);
                                 });
                             });
                         },
