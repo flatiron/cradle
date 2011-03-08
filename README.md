@@ -179,6 +179,21 @@ Here we create a temporary view. WARNING: do not use this in production as it is
         console.log(res);
     });
 
+### creating validation ###
+
+when saving a design document, cradle guesses you want to create a view, mention views explicitly to work around this.
+
+    db.save('_design/laws', {
+      views: {},
+      validate_doc_update: 
+        function (newDoc,oldDoc,usrCtx){
+          if(! /^(light|dark|neutral)$/(newDoc.force))
+            throw {error: "invalid value", reason:"force must be dark, light, or neutral"}          
+        }
+      }
+    });
+
+
 ### removing documents _(DELETE)_ ###
 
 To remove a document, you call the `remove()` method, passing the latest document revision.
