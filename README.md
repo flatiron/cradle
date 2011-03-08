@@ -72,6 +72,10 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 > You can check if a database exists with the `exists()` method.
 
+### destroy a database ###
+
+    db.destroy(cb)
+
 ### fetching a document _(GET)_ ###
 
     db.get('vader', function (err, doc) {
