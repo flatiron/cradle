@@ -203,8 +203,6 @@ vows.describe("Cradle").addBatch({
                     assert.ok(cached._attachments);
                     assert.ok(cached._attachments['foo.txt']);
                     assert.equal(cached._attachments['foo.txt'].stub, true);
-                    assert.equal(cached._attachments['foo.txt'].content_type, 'text/plain');
-                    assert.equal(cached._attachments['foo.txt'].revpos, 2);
                 },
                 "and is valid enough to re-save": {
                     topic: function (cached, db) {
