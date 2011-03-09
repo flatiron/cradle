@@ -72,6 +72,10 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 > You can check if a database exists with the `exists()` method.
 
+### destroy a database ###
+
+    db.destroy(cb)
+
 ### fetching a document _(GET)_ ###
 
     db.get('vader', function (err, doc) {
@@ -174,6 +178,21 @@ Here we create a temporary view. WARNING: do not use this in production as it is
         if (err) console.log(err);
         console.log(res);
     });
+
+### creating validation ###
+
+when saving a design document, cradle guesses you want to create a view, mention views explicitly to work around this.
+
+    db.save('_design/laws', {
+      views: {},
+      validate_doc_update: 
+        function (newDoc,oldDoc,usrCtx){
+          if(! /^(light|dark|neutral)$/(newDoc.force))
+            throw {error: "invalid value", reason:"force must be dark, light, or neutral"}          
+        }
+      }
+    });
+
 
 ### removing documents _(DELETE)_ ###
 
