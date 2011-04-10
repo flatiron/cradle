@@ -114,6 +114,14 @@ vows.describe("Cradle").addBatch({
                 assert.ok(db.cache.has('bob'));
                 assert.ok(db.cache.get('bob')._rev);
             },
+            "when fetching the cached document": {
+                topic: function(db) {
+                    db.get('bob', this.callback)
+                },
+                "document contains _id": function(e, doc) {
+                    assert.equal(doc._id, 'bob');
+                }
+            },
             "and": {
                 topic: function (db) {
                     var promise = new(events.EventEmitter);
