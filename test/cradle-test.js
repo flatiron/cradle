@@ -5,8 +5,6 @@ var path = require('path'),
     http = require('http'),
     fs = require('fs');
 
-require('./scripts/prepare-db');
-
 require.paths.unshift(path.join(__dirname, '..', 'lib'));
 
 function status(code) {
@@ -28,6 +26,11 @@ var cradle = require('cradle');
 var vows = require('vows');
 
 vows.describe("Cradle").addBatch({
+    "Test databases": {
+        topic: function () { require('./scripts/prepare-db')(this.callback); },
+        "should be initialized": function(client) {}
+    }
+}).addBatch({
     "Default connection settings": {
         topic: function () {
             cradle.setup({
@@ -142,8 +145,8 @@ vows.describe("Cradle").addBatch({
                 return promise;
             },
             "should write through the cache": function (db) {
-                assert.ok(db.cache.has('bob'));
-                assert.ok(db.cache.get('bob')._rev);
+                assert.ok(db.cache.has('billy'));
+                assert.ok(db.cache.get('billy')._rev);
             },
             "and": {
                 topic: function (db) {
