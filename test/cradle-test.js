@@ -133,6 +133,25 @@ vows.describe("Cradle").addBatch({
                     assert.ok(doc);
                     assert.equal(doc.size, 12);
                     assert.isUndefined(doc.ears);
+                },
+                "and saving again without the document in cache": {
+                    topic: function (res, doc, db) {
+                        var promise = new(events.EventEmitter);
+                        db.cache.purge('bob');
+                        db.save('bob', {iq: 120}, function (e, res) {
+                            promise.emit('success', res, db.cache.get('bob'));
+                        });
+                        return promise;
+                    },
+                    "return a 201": status(201),
+                    "allow an overwrite": function (res) {
+                       assert.match(res.rev, /^3/);
+                    },
+                    "caches the updated document": function (e, res, doc) {
+                        assert.ok(doc);
+                        assert.equal(doc.iq, 120);
+                        assert.isUndefined(doc.ears);
+                    }
                 }
             }
         },
@@ -235,6 +254,107 @@ vows.describe("Cradle").addBatch({
                     });
                 },
                 "and saves successfully": status(201)
+            }
+        },
+        "bulk save()": {
+            topic: function (db) {
+                var promise = new(events.EventEmitter);
+                db.save('napoleon', true, {evil: true}, function (e, res) {
+                    promise.emit("success", db);
+                });
+                return promise;
+            },
+            "should write to the cache without saving a revision": function (db) {
+                assert.ok(db.bulkCache.has('napoleon'));
+                assert.ok(db.bulkCache.get('napoleon').evil);
+                assert.isUndefined(db.bulkCache.get('napoleon')._rev);
+            },
+            "and bulk saving again": {
+                topic: function (db) {
+                    var promise = new(events.EventEmitter);
+                    db.save('napoleon', true, {allegory: 'stalin'}, function (e, res) {
+                        promise.emit('success', db.bulkCache.get('napoleon'));
+                    });
+                    return promise;
+                },
+                "caches the updated document without saving a revision": function (e, doc) {
+                    console.log(e, doc);
+                    assert.ok(doc);
+                    assert.equal(doc.allegory, 'stalin');
+                    assert.isUndefined(doc.evil);
+                    assert.isUndefined(doc._rev);
+                }
+            },
+            "and flush()": {
+                topic: function (db) {
+                    var promise = new(events.EventEmitter);
+                    db.save('snowball', true, {rival: true}, function(err, res) {
+                        db.flush(function (err, res) {
+                            promise.emit('success', res);
+                        });
+                    });
+                    return promise;
+                },
+                "returns an array of document ids and revs": function (res) {
+                    assert.equal(res[0].id, 'napoleon');
+                    assert.equal(res[1].id, 'snowball');
+                    assert.ok(res[0].rev);
+                    assert.ok(res[1].rev);
+                },
+                "should bulk insert the documents": {
+                    topic: function (res, db) {
+                        var callback = this.callback;
+                        db.get('snowball', function (e, snowball) {
+                            db.get('napoleon', function (e, napoleon) {
+                                callback(null, snowball, napoleon);
+                            });
+                        });
+                    },
+                    "which can then be retrieved": function (e, snowball, napoleon) {
+                        assert.ok(snowball._rev);
+                        assert.ok(napoleon._rev);
+                    },
+                    "and it is the first revision of the documents": function (e, snowball, napoleon) {
+                        assert.match(snowball._rev, /^1-/);
+                        assert.match(napoleon._rev, /^1-/);
+                    }
+                }
+            }
+        }
+    },
+    //
+    // Bulk save with autoflush
+    //
+    "A Cradle connection (bulkSize)": {
+        topic: function () {
+            return new(cradle.Connection)('127.0.0.1', 5984, {cache: true, bulkSize: 2}).database('pigs');
+        },
+        "bulk save()": {
+            topic: function (db) {
+                var promise = new(events.EventEmitter);
+                db.save('blossom', true, {}, function (e, res) {
+                    promise.emit("success", db);
+                });
+                return promise;
+            },
+            "should write to the cache without saving a revision": function (db) {
+                assert.ok(db.bulkCache.has('blossom'));
+                assert.isUndefined(db.bulkCache.get('blossom')._rev);
+            },
+            "and saving another": {
+                topic: function (db) {
+                    var promise = new(events.EventEmitter);
+                    db.save('buttercup', true, {}, function(err, res) {
+                        promise.emit('success', res);
+                    });
+                    return promise;
+                },
+                "returns an array of document ids and revs": function (res) {
+                    assert.equal(res[0].id, 'blossom');
+                    assert.equal(res[1].id, 'buttercup');
+                    assert.ok(res[0].rev);
+                    assert.ok(res[1].rev);
+                }
             }
         }
     },
