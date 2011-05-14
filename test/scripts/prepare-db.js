@@ -28,22 +28,28 @@ function r(method, url, doc) {
     return promise;
 }
 
-['rabbits', 'pigs','badgers'].forEach(function (db) {
-    r('DELETE', '/' + db).addListener('success', function () {
-        if (db === 'pigs') {
-            r('PUT', '/pigs').addListener('success', function () {
-                r('PUT', '/pigs/_design/pigs', {
-                    _id: '_design/pigs', views: {
-                        all: { map: "function (doc) { if (doc.color) emit(doc._id, doc) }" }
-                    }
+// TODO: Rewrite this using async.js and properly call back on completion
+module.exports = function(ready) {
+    ['rabbits', 'pigs','badgers'].forEach(function (db) {
+        r('DELETE', '/' + db).addListener('success', function () {
+            if (db === 'pigs') {
+                r('PUT', '/pigs').addListener('success', function () {
+                    r('PUT', '/pigs/_design/pigs', {
+                        _id: '_design/pigs', views: {
+                            all: { map: "function (doc) { if (doc.color) emit(doc._id, doc) }" }
+                        }
+                    });
+                    r('PUT', '/pigs/mike', {color: 'pink'});
+                    r('PUT', '/pigs/bill', {color: 'blue'}).addListener('success', function () {
+                      // HACK: Should wait until all PUT's have completed
+                      setTimeout(ready, 100);
+                    });
                 });
-                r('PUT', '/pigs/mike', {color: 'pink'});
-                r('PUT', '/pigs/bill', {color: 'blue'});
-            });
-        } else if (db === 'rabbits') {
-            r('PUT', '/rabbits').addListener('success', function () {
-                r('PUT', '/rabbits/alex', {color: 'blue'});
-            });
-        }
+            } else if (db === 'rabbits') {
+                r('PUT', '/rabbits').addListener('success', function () {
+                    r('PUT', '/rabbits/alex', {color: 'blue'});
+                });
+            }
+        });
     });
-});
+}

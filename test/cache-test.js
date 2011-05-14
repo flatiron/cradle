@@ -19,17 +19,14 @@ vows.describe('cradle/Cache').addBatch({
     'A cradle.Cache instance with a *cacheSize* of `8`': {
         topic: new(cradle.Cache)({ cache: true, cacheSize: 8 }),
 
-        'should be able to store 8 keys': function (topic) {
-            for (var i = 0; i < 8; i++) { topic.save(i.toString(), {}) }
-            assert.length (Object.keys(topic.store), 8);
+        'should be able to store 8 keys': function (cache) {
+            for (var i = 0; i < 8; i++) { cache.save(i.toString(), {}) }
+            assert.length (Object.keys(cache.store), 8);
         },
         'if more than 8 keys are set': {
             topic: function (cache) {
-                var that = this;
                 cache.save('17af', {});
-                process.nextTick(function () {
-                    that.callback(null, cache);
-                });
+                return cache;
             },
             'there should still be 8 keys in the store': function (cache) {
                 assert.length (Object.keys(cache.store), 8);
@@ -80,25 +77,18 @@ vows.describe('cradle/Cache').addBatch({
     'A cradle.Cache instance with a *cacheSize* of *1024*': {
         topic: new(cradle.Cache)({ cache: true, cacheSize: 1024 }),
 
-        'setting 4096 keys': {
+        'setting 1025 keys': {
             topic: function (cache) {
-                var that = this;
-                var keys = 0;
-                var timer = setInterval(function () {
-                    if (keys >= 4096) {
-                        clearInterval(timer);
-                        process.nextTick(function () { that.callback(null, cache) })
-                    } 
-                    cache.save(keys.toString(), {})
-                    keys++;
-                }, 1);
+                for (var i = 0; i < 1025; i++) { cache.save(i.toString(), {}); }
+                return cache;
             },
-            'should result in 1025 keys': function (cache) {
-                assert.equal (Object.keys(cache.store).length, 1025);
-                assert.equal (cache.keys, 1025);
+            // 1025 - 1/8th of cache items pruned
+            'should result in 897 keys': function (cache) {
+                assert.equal (cache.keys, 897);
+                assert.equal (Object.keys(cache.store).length, 897);
             }
         }
-    
+
     }
 }).export(module);
 

@@ -148,6 +148,33 @@ If you want to insert more than one document at a time, for performance reasons,
         // Handle response
     });
 
+#### bulk saving ####
+
+For performance reasons, Cradle is able to defer saving of documents. This
+also avoids unnecessarily saving multiple revisions of the same document.
+
+If you want to defer saving of a document, you can pass `true` to
+`save()` and Cradle will cache it only:
+
+    db.save('leia', true, {hot: true}, function(err, res) {
+        // Leia is cached but not yet saved.
+    });
+
+    db.save('leia', true, {hot: true, gender: 'female'}, function(err, res) {
+        // The updated version of Leia is cached but still not saved.
+    });
+
+To save all documents previously cached, call `flush()`:
+
+    db.flush(function(err, res) {
+        // Handle response
+    });
+
+If you want to automatically flush the documents when a given number of
+documents are cached, set the `bulkSize` option. You should still call `flush()` when
+finished saving all documents as some documents might still not be
+flushed.
+
 #### creating views ####
 
 Here we create a design document named 'characters', with two views: 'all' and 'darkside'.
