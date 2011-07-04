@@ -606,6 +606,16 @@ vows.describe("Cradle").addBatch({
                     },
                     "returns a 404": status(404)
                 }
+            },
+            "cleaning up a view with viewCleanup()": {
+              topic: function (db) {
+                db.viewCleanup(this.callback);
+              },
+              "returns a 202": status(202),
+              "no error is thrown and we get ok response": function (e, res) {
+                assert.ok(!e);
+                assert.ok(res && res.ok && res.ok === true);
+              }
             }
         }
     }
