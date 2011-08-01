@@ -133,6 +133,19 @@ vows.describe("Cradle").addBatch({
                 }
             }
         },
+        "push()": {
+            topic: function (db) {
+                db.push('brad', {nose: true});
+                return db;
+            },
+            "should not write through the cache": function (db) {
+                assert.ok(!db.cache.has('brad'));
+            },
+            "should add to the bulk docs queue": function (db) {
+                assert.equal(db.bulkDocs.length, 1);
+                assert.equal(db.bulkDocs[0]._id, 'brad');
+            }
+        },
         "merge()": {
             topic: function (db) {
                 var promise = new(events.EventEmitter);
