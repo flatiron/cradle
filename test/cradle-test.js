@@ -407,6 +407,8 @@ vows.describe("Cradle").addBatch({
                 "returns an array of document ids and revs": function (res) {
                     assert.equal(res[0].id, 'tom');
                     assert.equal(res[1].id, 'flint');
+                    assert.ok(res[0].rev);
+                    assert.ok(res[1].rev);
                 },
                 "should bulk insert the documents": {
                     topic: function (res, db) {
@@ -422,6 +424,37 @@ vows.describe("Cradle").addBatch({
                         assert.ok(tom._id);
                         assert.ok(flint._id);
                     }
+                },
+                "then calling save() with an array": {
+                    topic: function (_, db) {
+                        db.cache.purge('tom');
+                        db.save([{_id: 'tom'}, {_id: 'jerry'}], this.callback);
+                    },
+                    "returns an array of document ids and revs": function (res) {
+                        assert.equal(res[0].id, 'jerry');
+                        assert.equal(res[1].id, 'tom');
+                        assert.ok(res[0].rev);
+                        assert.ok(res[1].rev);
+                    },
+                    "should bulk update the documents": {
+                        topic: function (_, _, db) {
+                            var promise = new(events.EventEmitter);
+                            db.get('tom', function (e, tom) {
+                                db.get('jerry', function (e, jerry) {
+                                    promise.emit('success', tom, jerry);
+                                });
+                            });
+                            return promise;
+                        },
+                        "which can then be retrieved": function (e, tom, jerry) {
+                            assert.ok(tom._id);
+                            assert.ok(jerry._id);
+                        },
+                        "and resolve conflicts": function (e, tom, jerry) {
+                            assert.match(jerry._rev, /^1-/)
+                            assert.match(tom._rev, /^2-/)
+                        }
+                    },
                 }
             },
             "getting all documents": {
