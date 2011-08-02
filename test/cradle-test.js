@@ -431,8 +431,8 @@ vows.describe("Cradle").addBatch({
                         db.save([{_id: 'tom'}, {_id: 'jerry'}], this.callback);
                     },
                     "returns an array of document ids and revs": function (res) {
-                        assert.equal(res[0].id, 'jerry');
-                        assert.equal(res[1].id, 'tom');
+                        assert.equal(res[0].id, 'tom');
+                        assert.equal(res[1].id, 'jerry');
                         assert.ok(res[0].rev);
                         assert.ok(res[1].rev);
                     },
