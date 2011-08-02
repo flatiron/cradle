@@ -133,6 +133,37 @@ vows.describe("Cradle").addBatch({
                 }
             }
         },
+        "save() with an array": {
+            topic: function (db) {
+                var promise = new(events.EventEmitter);
+                db.save([{_id: 'mutley', laughing: true}], function (e, res) {
+                    promise.emit("success", db);
+                });
+                return promise;
+            },
+            "should write through the cache": function (db) {
+                assert.ok(db.cache.has('mutley'));
+                assert.ok(db.cache.get('mutley')._rev);
+            },
+            "and": {
+                topic: function (db) {
+                    var promise = new(events.EventEmitter);
+                    db.save([{_id: 'mutley', evil: true}], function (e, res) {
+                        promise.emit('success', res, db.cache.get('mutley'));
+                    });
+                    return promise;
+                },
+                "return a 201": status(201),
+                "allow an overwrite": function (res) {
+                   assert.match(res[0].rev, /^2/);
+                },
+                "caches the updated document": function (e, res, doc) {
+                    assert.ok(doc);
+                    assert.ok(doc.evil);
+                    assert.isUndefined(doc.laughing);
+                }
+            }
+        },
         "push()": {
             topic: function (db) {
                 db.push('brad', {nose: true});
