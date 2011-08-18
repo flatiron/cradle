@@ -142,8 +142,8 @@ vows.describe("Cradle").addBatch({
                 return promise;
             },
             "should write through the cache": function (db) {
-                assert.ok(db.cache.has('bob'));
-                assert.ok(db.cache.get('bob')._rev);
+                assert.ok(db.cache.has('billy'));
+                assert.ok(db.cache.get('billy')._rev);
             },
             "and": {
                 topic: function (db) {
