@@ -127,7 +127,7 @@ In general, document creation is done with the `save()` method, while updating i
 
 Note that when saving a document this way, CouchDB overwrites the existing document with the new one. If you want to update only certain fields of the document, you have to fetch it first (with `get`), make your changes, then resave the modified document with the above method.
 
-If you only want to update one or more attributes, and leave the others untouched, you can use the `merge()` method: 
+If you only want to update one or more attributes, and leave the others untouched, you can use the `merge()` method:
 
     db.merge('luke', {jedi: true}, function (err, res) {
         // Luke is now a jedi,
@@ -169,7 +169,9 @@ Here we create a design document named 'characters', with two views: 'all' and '
 
 These views can later be queried with `db.view('characters/all')`, for example.
 
-Here we create a temporary view. WARNING: do not use this in production as it is extremely slow (use it to test views).
+Here we create a temporary view. WARNING: do not use this in production as it is
+extremely slow (use it to test views).
+
     db.temporaryView({
         map: function(doc) {
           if (doc.color) emit(doc._id, doc);
@@ -225,7 +227,7 @@ Changes API
 For a one-time `_changes` query, simply call `db.changes` with a callback:
 
     db.changes(function (list) {
-        list.forEach(function (change) { console.log(change) });    
+        list.forEach(function (change) { console.log(change) });
     });
 
 Or if you want to see changes since a specific sequence number:
