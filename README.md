@@ -70,7 +70,21 @@ Note that you can also use `cradle.setup` to set a global configuration:
     var db = c.database('starwars');
     db.create();
 
-> You can check if a database exists with the `exists()` method.
+#### checking for database existence ####
+
+You can check if a database exists with the `exists()` method.
+
+    db.exists(function (err, exists) {
+      if (err) {
+        console.log('error', err);
+      } else if (exists) {
+        console.log('the force is with you.');
+      } else {
+        console.log('database does not exists.');
+        db.create();
+        /* populate design documents */
+      }
+    });
 
 ### destroy a database ###
 
@@ -276,4 +290,3 @@ Other API methods
 - `compact()`: Compact database
 - `viewCleanup()`: Cleanup old view data
 - `replicate(target, options)`: Replicate this database to `target`.
-
