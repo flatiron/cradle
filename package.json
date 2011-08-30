@@ -5,8 +5,8 @@
   "keywords"      : ["couchdb", "database", "couch"],
   "author"        : "Alexis Sellier <self@cloudhead.net>",
   "contributors"  : [],
-  "dependencies"  : { "vargs": ">=0.1.0", "vows": ">=0.5.4" },
-  "version"       : "0.5.5",
+  "dependencies"  : { "nimble": ">=0.0.2", "vargs": ">=0.1.0", "vows": ">=0.5.4" },
+  "version"       : "0.5.6-sspinc",
   "main"          : "./lib/cradle",
   "directories"   : { "test": "./test" },
   "engines"       : { "node": ">=0.3.6" }
