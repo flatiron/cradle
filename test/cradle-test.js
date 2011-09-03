@@ -3,11 +3,10 @@ var path = require('path'),
     assert = require('assert'),
     events = require('events'),
     http = require('http'),
-    fs = require('fs');
+    fs = require('fs'),
+    vows = require('vows');
 
 require('./scripts/prepare-db');
-
-require.paths.unshift(path.join(__dirname, '..', 'lib'));
 
 function status(code) {
     return function (e, res) {
@@ -24,8 +23,7 @@ function mixin(target) {
     return target;
 }
 
-var cradle = require('cradle');
-var vows = require('vows');
+var cradle = require('../lib/cradle');
 
 vows.describe("Cradle").addBatch({
     "Default connection settings": {
