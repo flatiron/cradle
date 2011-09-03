@@ -108,6 +108,10 @@ You can check if a database exists with the `exists()` method.
   db.destroy(cb);
 ```
 
+### destroy a database ###
+
+    db.destroy(cb)
+
 ### fetching a document _(GET)_ ###
 
 ``` js
@@ -275,6 +279,21 @@ when saving a design document, cradle guesses you want to create a view, mention
     }
   });
 ```
+
+### creating validation ###
+
+when saving a design document, cradle guesses you want to create a view, mention views explicitly to work around this.
+
+    db.save('_design/laws', {
+      views: {},
+      validate_doc_update: 
+        function (newDoc,oldDoc,usrCtx){
+          if(! /^(light|dark|neutral)$/(newDoc.force))
+            throw {error: "invalid value", reason:"force must be dark, light, or neutral"}          
+        }
+      }
+    });
+
 
 ### removing documents _(DELETE)_ ###
 
