@@ -135,6 +135,33 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
   });
 ```
 
+#### Querying a row with a specific key ####
+Lets suppose that you have a design document that you've created:
+
+``` js
+  db.save('_design/user', {
+    views: {
+      byUsername: {
+        map: 'function (doc) { if (doc.resource === 'User') { emit(doc.username, doc) } }'
+      }
+    }
+  });
+```
+
+In CouchDB you could query this view directly by making an HTTP request to:
+
+```
+  /_design/User/_view/byUsername/?key="luke"
+```
+
+In `cradle` you can make this same query by using the `.view()` database function: 
+
+``` js
+  db.view('user/byUsername', { key: 'luke' }, function (err, doc) {
+      console.dir(doc);
+  });
+```
+
 ### creating/updating documents ###
 
 In general, document creation is done with the `save()` method, while updating is done with `merge()`.
