@@ -4,14 +4,13 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
-
-require('./scripts/prepare-db');
+    vows = require('vows'),
+    seed = require('./helpers/seed');
 
 function status(code) {
     return function (e, res) {
         assert.ok(res || e);
-        assert.equal((res || e).headers.status, code);
+        assert.equal((res || e).headers.status || (res || e).status, code);
     };
 }
 
@@ -25,7 +24,7 @@ function mixin(target) {
 
 var cradle = require('../lib/cradle');
 
-vows.describe("Cradle").addBatch({
+vows.describe("Cradle").addBatch(seed.requireSeed()).addBatch({
     "Default connection settings": {
         topic: function () {
             cradle.setup({
@@ -92,13 +91,13 @@ vows.describe("Cradle").addBatch({
             }
         },
     },
-
+}).addBatch({
     //
     // Cache
     //
     "A Cradle connection (cache)": {
         topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: true}).database('pigs');
+            return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
         },
         "save()": {
             topic: function (db) {
@@ -140,8 +139,8 @@ vows.describe("Cradle").addBatch({
                 return promise;
             },
             "should write through the cache": function (db) {
-                assert.ok(db.cache.has('bob'));
-                assert.ok(db.cache.get('bob')._rev);
+                assert.ok(db.cache.has('billy'));
+                assert.ok(db.cache.get('billy')._rev);
             },
             "and": {
                 topic: function (db) {
@@ -232,7 +231,8 @@ vows.describe("Cradle").addBatch({
                 "and saves successfully": status(201)
             }
         }
-    },
+    }
+}).addBatch({
     "Connection": {
         topic: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
@@ -276,6 +276,12 @@ vows.describe("Cradle").addBatch({
                 assert.include(dbs, 'pigs');
             }
         },
+    }
+}).addBatch({
+    "Connection": {
+        topic: function () {
+            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
+        },      
         "create()": {
             topic: function (c) {
                 c.database('badgers').create(this.callback);

@@ -1,0 +1,25 @@
+{
+  "rabbits": [
+    {
+      "_id": "alex",
+      "color": "blue"
+    }
+  ],
+  "pigs": [
+    {
+      "_id": "_design/pigs",
+      "views": {
+          "all": { "map": "function (doc) { if (doc.color) emit(doc._id, doc) }" }
+      }
+    },
+    { 
+      "_id": "mike",
+      "color": "pink" 
+    },
+    { 
+      "_id": "bill",
+      "color": "blue" 
+    }
+  ],
+  "badgers": null
+}
