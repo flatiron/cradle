@@ -3,13 +3,10 @@ var path = require('path'),
     assert = require('assert'),
     events = require('events'),
     http = require('http'),
-    fs = require('fs');
+    fs = require('fs'),
+    vows = require('vows');
 
-require.paths.unshift(path.join(__dirname, '..', 'lib'));
-
-var vows = require('vows');
-var cradle = require('cradle');
-
+var cradle = require('../lib/cradle');
 var document = { _rev: '2-76be', _id: 'f6av8', name: 'buzz', age: 99 };
 
 vows.describe('cradle/Response').addBatch({
