@@ -40,6 +40,7 @@ vows.describe("Cradle").addBatch(seed.requireSeed()).addBatch({
             assert.equal(c.port, 4242);
             assert.equal(c.options.milk, 'white');
             assert.equal(c.options.cache, true);
+            assert.equal(c.options.retry, 1);
         },
         "with just a {} passed to a new Connection object": {
             topic: function () { return new(cradle.Connection)({milk: 'green'}) },
