@@ -7,7 +7,7 @@
   "contributors"    : [],
   "dependencies"    : { "vargs": ">=0.1.0", "vows": ">=0.5.4" },
   "devDependencies" : { "async": "~0.1.x", "request": "~2.1.1" },
-  "version"         : "0.5.5",
+  "version"         : "0.5.6",
   "main"            : "./lib/cradle",
   "directories"     : { "test": "./test" },
   "engines"         : { "node": ">=0.3.6" }
