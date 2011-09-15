@@ -112,10 +112,10 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 assert.ok(db.cache.get('bob')._rev);
             },
             "when fetching the cached document": {
-                topic: function(db) {
+                topic: function (db) {
                     db.get('bob', this.callback)
                 },
-                "document contains _id": function(e, doc) {
+                "document contains _id": function (e, doc) {
                     assert.equal(doc._id, 'bob');
                 }
             },
@@ -374,7 +374,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                     }
                 },
                 "with a doc containing non-ASCII characters": {
-                    topic: function(db) {
+                    topic: function (db) {
                         db.save('john', {umlauts: 'äöü'}, this.callback);
                     },
                     "creates a new document (201)": status(201)

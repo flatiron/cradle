@@ -251,7 +251,7 @@ extremely slow (use it to test views).
 
 ``` js
   db.temporaryView({
-      map: function(doc) {
+      map: function (doc) {
         if (doc.color) emit(doc._id, doc);
       }
     }, function (err, res) {
@@ -268,9 +268,9 @@ when saving a design document, cradle guesses you want to create a view, mention
   db.save('_design/laws', {
     views: {},
     validate_doc_update: 
-      function (newDoc,oldDoc,usrCtx){
+      function (newDoc, oldDoc, usrCtx) {
         if(! /^(light|dark|neutral)$/(newDoc.force))
-          throw {error: "invalid value", reason:"force must be dark, light, or neutral"}          
+          throw { error: "invalid value", reason:"force must be dark, light, or neutral" }
       }
     }
   });
