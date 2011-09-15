@@ -24,7 +24,7 @@ function mixin(target) {
 
 var cradle = require('../lib/cradle');
 
-vows.describe("Cradle").addBatch(seed.requireSeed()).addBatch({
+vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
     "Default connection settings": {
         topic: function () {
             cradle.setup({
@@ -136,6 +136,23 @@ vows.describe("Cradle").addBatch(seed.requireSeed()).addBatch({
                     assert.equal(doc.size, 12);
                     assert.isUndefined(doc.ears);
                 }
+            }
+        },
+        "save() with / in id": {
+            topic: function (db) {
+                var promise = new(events.EventEmitter);
+                db.save('bob/someotherdoc', {size: 12}, function (e, res) {
+                    promise.emit('success', res, db.cache.get('bob/someotherdoc'));
+                });
+                return promise;
+            },
+            "return a 201": status(201),
+            "allow an overwrite": function (res) {
+               assert.match(res.rev, /^1/);
+            },
+            "caches the updated document": function (e, res, doc) {
+                assert.ok(doc);
+                assert.equal(doc.size, 12);
             }
         },
         "merge()": {
