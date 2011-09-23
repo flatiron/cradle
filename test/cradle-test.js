@@ -90,6 +90,15 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 assert.equal(c.port, 5984);
             }
         },
+        "with the port as part of the URL": {
+            topic: function () { return new(cradle.Connection)("https://couch.io:418") },
+            "should read the port from the URL": function (c) {
+                assert.equal(c.protocol, 'https');
+                assert.equal(c.options.secure, true);
+                assert.equal(c.host, 'couch.io');
+                assert.equal(c.port, 418);
+            }
+        }
     },
 }).addBatch({
     //
@@ -306,7 +315,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
     "Connection": {
         topic: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
-        },      
+        },
         "create()": {
             topic: function (c) {
                 c.database('badgers').create(this.callback);
