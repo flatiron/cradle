@@ -11,7 +11,6 @@
   "main": "./lib/cradle",
   "dependencies": { 
     "request": "~2.1.1",
-    "vargs": ">=0.1.0", 
     "vows": ">=0.5.4"
   },
   "devDependencies": { 
