@@ -112,7 +112,7 @@ You can check if a database exists with the `exists()` method.
 
 ``` js
   db.get('vader', function (err, doc) {
-      sys.puts(doc);
+      console.log(doc);
   });
 ```
 
@@ -129,8 +129,7 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
 ``` js
   db.view('characters/all', function (err, res) {
       res.forEach(function (row) {
-          sys.puts(row.name + " is on the " +
-                   row.force + " side of the force.");
+          console.log("%s is on the %s side of the force.", row.name, row.force);
       });
   });
 ```
