@@ -8,14 +8,12 @@ var cradle = require('../lib/cradle');
 vows.describe('cradle/Cache').addBatch({
     'A cradle.Connection instance with a *cacheSize* specified': {
         topic: new(cradle.Connection)({ cache: true, cacheSize: 16 }),
-
         'should set the database cache size appropriately': function (topic) {
             assert.equal (topic.database('random').cache.size, 16);
         }
     },
     'A cradle.Cache instance with a *cacheSize* of `8`': {
         topic: new(cradle.Cache)({ cache: true, cacheSize: 8 }),
-
         'should be able to store 8 keys': function (topic) {
             for (var i = 0; i < 8; i++) { topic.save(i.toString(), {}) }
             assert.lengthOf (Object.keys(topic.store), 8);
@@ -76,7 +74,6 @@ vows.describe('cradle/Cache').addBatch({
     },
     'A cradle.Cache instance with a *cacheSize* of *1024*': {
         topic: new(cradle.Cache)({ cache: true, cacheSize: 1024 }),
-
         'setting 4096 keys': {
             topic: function (cache) {
                 var that = this;
