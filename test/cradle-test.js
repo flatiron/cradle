@@ -278,7 +278,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 "returns a 200": status(200),
                 "returns an array of UUIDs": function (uuids) {
                     assert.isArray(uuids);
-                    assert.length(uuids, 42);
+                    assert.lengthOf(uuids, 42);
                 }
             },
             "without count": {
@@ -287,7 +287,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 "returns a 200": status(200),
                 "returns an array of UUIDs": function (uuids) {
                     assert.isArray(uuids);
-                    assert.length(uuids, 1);
+                    assert.lengthOf(uuids, 1);
                 }
             }
         },
@@ -497,7 +497,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 },
                 "returns an iterable object with key/val pairs": function (res) {
                     assert.isArray(res);
-                    assert.length(res, 2);
+                    assert.lengthOf(res, 2);
                     res.forEach(function (k, v) {
                         assert.isObject(v);
                         assert.isString(k);
@@ -528,7 +528,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 },
                 "returns an iterable object with key/val pairs": function (res) {
                     assert.isArray(res);
-                    assert.length(res, 2);
+                    assert.lengthOf(res, 2);
                     res.forEach(function (k, v) {
                         assert.isObject(v);
                         assert.isString(k);
