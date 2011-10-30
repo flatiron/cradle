@@ -15,7 +15,7 @@ vows.describe('cradle/Response').addBatch({
             topic: new(cradle.Response)(document),
 
             'should only have the original keys': function (topic) {
-                assert.length    (Object.keys(topic), 4);
+                assert.lengthOf  (Object.keys(topic), 4);
                 assert.equal     (topic.name, 'buzz');
                 assert.equal     (topic.age, 99);
                 assert.deepEqual (document, topic);
@@ -29,15 +29,15 @@ vows.describe('cradle/Response').addBatch({
                 assert.deepEqual   (topic.json, document);
                 assert.isUndefined (topic.json.json);
                 assert.isUndefined (topic.headers);
-                assert.length      (Object.keys(topic.json), 4);
+                assert.lengthOf    (Object.keys(topic.json), 4);
             },
             'when using a `for .. in` loop, should only return the original keys': function (topic) {
                 var keys = [];
                 for (var k in topic) { keys.push(k) }
 
-                assert.length  (keys, 4);
-                assert.include (keys, 'name');
-                assert.include (keys, 'age');
+                assert.lengthOf (keys, 4);
+                assert.include  (keys, 'name');
+                assert.include  (keys, 'age');
             },
             'should stringify': function (topic) {
                 var expected = JSON.stringify(document);
