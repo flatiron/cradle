@@ -592,6 +592,18 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                         assert.ok(res.rev);
                         assert.match(res.rev, /^1-/);
                     }
+                },
+                "to a design document": {
+                    topic: function (db) {
+                        var callback = this.callback;
+                        db.get('_design/pigs', function (err, doc) {
+                            db.saveAttachment('_design/pigs', doc.rev, 'farm/pen/foo.txt', 'text/plain', 'Foo!', callback);
+                        });
+                    },
+                    "returns a 201": status(201),
+                    "returns the revision": function (res) {
+                        assert.ok(res.rev);
+                    }
                 }
             },
             "getting an attachment": {
@@ -617,6 +629,32 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                     },
                     "returns the attachment in the body": function (res) {
                         assert.equal(res.body, "hello world");
+                    }
+                },
+                "from a design document": {
+                    topic: function (db) {
+                        var promise = new(events.EventEmitter), response = {};
+                        doc = {_id:'_design/attachment-getter', _attachments:{
+                            "ranch/corral/foo.txt":{content_type:"text/plain", data:"cGxhbmV0YXJ5IGdyZWV0aW5ncw=="}
+                        }};
+                        db.save(doc, function (e, res) {
+                            var streamer = db.getAttachment('_design/attachment-getter','ranch/corral/foo.txt');
+                            streamer.addListener('response', function (res) {
+                                response.headers = res.headers;
+                                response.headers.status = res.statusCode;
+                                response.body = "";
+                            });
+                            streamer.addListener('data', function (chunk) { response.body += chunk; });
+                            streamer.addListener('end', function () { promise.emit('success', response); });
+                        });
+                        return promise;
+                    },
+                    "returns a 200": status(200),
+                    "returns the right mime-type in the header": function (res) {
+                        assert.equal(res.headers['content-type'], 'text/plain');
+                    },
+                    "returns the attachment in the body": function (res) {
+                        assert.equal(res.body, "planetary greetings");
                     }
                 },
                 "when not found": {
