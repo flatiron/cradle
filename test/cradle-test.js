@@ -207,7 +207,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 }
             }
         },
-        "saveAttachment()": {
+        /*"saveAttachment()": {
             "updates the cache": {
                 topic: function (db) {
                     var that = this;
@@ -254,7 +254,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 },
                 "and saves successfully": status(201)
             }
-        }
+        }*/
     }
 }).addBatch({
     "Connection": {
@@ -350,6 +350,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                     topic: function (_, db) { db.get('tyler', this.callback) },
                     "returns a 404": status(404),
                     "returns the error": function (err, res) {
+                        //console.dir(arguments);
                         assert.isObject(err);
                         assert.isObject(err.headers);
                         assert.isUndefined(res);
@@ -541,7 +542,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
 
                 }
             },
-            "putting an attachment": {
+            /*"putting an attachment": {
                 "to an existing document": {
                     "with given data": {
                         topic: function (db) {
@@ -644,7 +645,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 assert.ok(!e);
                 assert.ok(res && res.ok && res.ok === true);
               }
-            }
+            }*/
         }
     }
 }).export(module);

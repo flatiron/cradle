@@ -10,7 +10,8 @@
   ],
   "main": "./lib/cradle",
   "dependencies": { 
-    "request": "~2.1.1"
+    "request": "~2.1.1",
+    "vargs": "0.1.0"
   },
   "devDependencies": { 
     "async": "~0.1.x",
