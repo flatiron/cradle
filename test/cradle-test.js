@@ -476,8 +476,8 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
             "deleting a document (DELETE)": {
                 topic: function (db) {
                     var promise = new(events.EventEmitter);
-                    db.get('bill', function (e, res) {
-                        db.remove('bill', res.rev, function (e, res) {
+                    db.get('billy', function (e, res) {
+                        db.remove('billy', res.rev, function (e, res) {
                             promise.emit('success', res);
                         });
                     });
@@ -635,7 +635,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                     },
                     "returns a 404": status(404)
                 }
-            },
+            },*/
             "cleaning up a view with viewCleanup()": {
               topic: function (db) {
                 db.viewCleanup(this.callback);
@@ -645,7 +645,7 @@ vows.describe("cradle").addBatch(seed.requireSeed()).addBatch({
                 assert.ok(!e);
                 assert.ok(res && res.ok && res.ok === true);
               }
-            }*/
+            }
         }
     }
 }).export(module);
