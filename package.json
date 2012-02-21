@@ -10,11 +10,11 @@
   ],
   "main": "./lib/cradle",
   "dependencies": { 
-    "request": "~2.1.1",
-    "vows": ">=0.5.4"
+    "request": "~2.1.1"
   },
   "devDependencies": { 
-    "async": "~0.1.x"
+    "async": "~0.1.x",
+    "vows": ">=0.5.4"
   },
   "scripts": { 
     "test": "vows --spec"
