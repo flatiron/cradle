@@ -211,6 +211,34 @@ vows.describe('cradle/database/attachments').addBatch({
         topic: function () {
            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
         },
+        "saving an attachment with ETag": {
+            topic: function (db) {
+                var id = 'attachment-incorrect-revision',
+                    that = this;
+                
+                db.head('attachment-incorrect-revision', function (err, _doc) {
+                  db.saveAttachment({
+                      id: id, 
+                      rev: _doc.etag,
+                    }, {
+                       name: 'etag-foo.txt',
+                       contentType: 'text/plain',
+                       body: 'FOOO!!' 
+                    }, that.callback);
+                });
+            },
+            "returns a 201": status(201),
+            "returns the revision": function (res) {
+                assert.ok(res.rev);
+                assert.match(res.rev, /^3/);
+            }
+        }
+    }
+}).addBatch({
+    "Database with no cache": {
+        topic: function () {
+           return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
+        },
         "getting an attachment with .pipe()": {
             "when it exists": {
                 topic: function (db) {
