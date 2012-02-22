@@ -11,19 +11,20 @@ var seed = exports;
 seed.createDatabase = function (name, callback) {
   request({
     method: 'PUT',
-    url: 'http://127.0.0.1:5984/' + name
+    url: 'http://127.0.0.1:5984/' + encodeURIComponent(name)
   }, callback);
 };
 
 seed.deleteDatabase = function (name, callback) {
   request({
     method: 'DELETE',
-    url: 'http://127.0.0.1:5984/' + name
+    url: 'http://127.0.0.1:5984/' + encodeURIComponent(name)
   }, callback);
 };
 
 seed.seedDatabase = function (name, callback) {
-  seed.deleteDatabase(name, function (err) {
+  console.log('Seeding ' + name);
+  seed.deleteDatabase(name, function (err, res, body) {
     if (!databases[name]) {
       return callback(err);
     }
@@ -31,7 +32,7 @@ seed.seedDatabase = function (name, callback) {
     function putDoc (doc, next) {
       request({
         method: 'PUT',
-        url: 'http://127.0.0.1:5984/' + name + '/' + doc._id,
+        url: 'http://127.0.0.1:5984/' + encodeURIComponent(name) + '/' + doc._id,
         body: JSON.stringify(doc)
       }, next);
     }
@@ -56,7 +57,7 @@ seed.requireSeed = function () {
 };
 
 if (!module.parent) {
-    async.forEach(Object.keys(databases), seed.seedDatabase, function (err) {
+    async.forEachSeries(Object.keys(databases), seed.seedDatabase, function (err) {
         return err 
             ? console.log('Error seeding database: ' + err.message)
             : console.log('Database seed completed.');

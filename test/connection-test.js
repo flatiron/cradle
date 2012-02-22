@@ -141,13 +141,26 @@ vows.describe('cradle/connection').addBatch({
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "create()": {
-            topic: function (c) {
-                c.database('badgers').create(this.callback);
+            "with no / in the name": {
+                topic: function (c) {
+                    c.database('badgers').create(this.callback);
+                },
+                "returns a 201": status(201),
+                "creates a database": {
+                    topic: function (res, c) { c.database('badgers').exists(this.callback) },
+                    "it exists": function (res) { assert.ok(res) }
+                }
             },
-            "returns a 201": status(201),
-            "creates a database": {
-                topic: function (res, c) { c.database('badgers').exists(this.callback) },
-                "it exists": function (res) { assert.ok(res) }
+            "with a / in the name": {
+                topic: function (c) {
+                    c.database('madeup/ewoks').create(this.callback);
+                },
+                "returns a 201": status(201),
+                "creates a database": {
+                    topic: function (res, c) { c.database('madeup/ewoks').exists(this.callback) },
+                    "it exists": function (res) { assert.ok(res) }
+                }
+                
             }
         },
         "destroy()": {
