@@ -59,6 +59,18 @@ vows.describe('cradle/database/view').addBatch({
                     db.view('pigs/all', { startKey: 'aaaa', endKey: 'zzzz' }, this.callback);
                 },
                 ['bill', 'mike']
+            ),
+            "with keys": shouldQueryView(
+                function (db) {
+                    db.view('pigs/all', { keys: ['mike', 'bill'] }, this.callback);
+                },
+                ['mike', 'bill']
+            ),
+            "with a `keys` body": shouldQueryView(
+                function (db) {
+                    db.view('pigs/all', { body: { keys: ['mike', 'bill'] } }, this.callback);
+                },
+                ['mike', 'bill']
             )
         },
         // same as the above test, but with a temporary view
