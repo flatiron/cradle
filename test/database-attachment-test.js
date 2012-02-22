@@ -207,4 +207,45 @@ vows.describe('cradle/database/attachments').addBatch({
             }
         }
     }
+}).addBatch({
+    "Database with no cache": {
+        topic: function () {
+           return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
+        },
+        "getting an attachment with .pipe()": {
+            "when it exists": {
+                topic: function (db) {
+                    var stream = db.getAttachment('piped-attachment', 'foo.txt', this.callback);
+                    stream.pipe(fs.createWriteStream(path.join(__dirname, 'fixtures', 'README.md')));
+                },
+                "returns a 200": status(200),
+                "returns the right mime-type in the header": function (err, res, body) {
+                    assert.equal(res.headers['content-type'], 'text/plain');
+                },
+                "should write the correct attachment to disk": function (err, res, body) {
+                    assert.isNull(err);
+                    
+                    assert.equal(
+                        fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8'),
+                        fs.readFileSync(path.join(__dirname, 'fixtures', 'README.md'), 'utf8')
+                    );
+                }
+            },
+            "when not found": {
+                topic: function (db) {
+                    var stream = db.getAttachment('attachment-not-found', 'foo.txt');
+                    stream.pipe(fs.createWriteStream(path.join(__dirname, 'fixtures', 'not-found.txt')));
+                    
+                    stream.on('end', this.callback);
+                },
+                "should write the error to disk": function () {
+                    var result = JSON.parse(
+                        fs.readFileSync(path.join(__dirname, 'fixtures', 'not-found.txt'), 'utf8')
+                    );
+                    
+                    assert.equal(result.reason, 'Document is missing attachment');
+                }
+            }
+        }
+    }
 }).export(module);
