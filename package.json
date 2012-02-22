@@ -6,11 +6,12 @@
   "keywords": ["couchdb", "database", "couch"],
   "author": "Alexis Sellier <self@cloudhead.net>",
   "contributors": [
-    { "name": "Charlie Robbins", "email": "charlie@nodejitsu.com"}
+    { "name": "Charlie Robbins", "email": "charlie@nodejitsu.com" }
   ],
   "main": "./lib/cradle",
   "dependencies": { 
-    "request": "~2.1.1",
+    "follow": "0.7.x",
+    "request": "2.x.x",
     "vargs": "0.1.0"
   },
   "devDependencies": { 
