@@ -12,14 +12,6 @@ function status(code) {
     };
 }
 
-function mixin(target) {
-    var objs = Array.prototype.slice.call(arguments, 1);
-    objs.forEach(function (o) {
-        for (var attr in o) { target[attr] = o[attr] }
-    });
-    return target;
-}
-
 var cradle = require('../lib/cradle');
 
 vows.describe('cradle/database').addBatch({
@@ -49,7 +41,6 @@ vows.describe('cradle/database').addBatch({
                     topic: function (_, db) { db.get('tyler', this.callback) },
                     "returns a 404": status(404),
                     "returns the error": function (err, res) {
-                        //console.dir(arguments);
                         assert.isObject(err);
                         assert.isObject(err.headers);
                         assert.isUndefined(res);
