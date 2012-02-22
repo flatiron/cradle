@@ -6,7 +6,8 @@
   "keywords": ["couchdb", "database", "couch"],
   "author": "Alexis Sellier <self@cloudhead.net>",
   "contributors": [
-    { "name": "Charlie Robbins", "email": "charlie@nodejitsu.com" }
+    { "name": "Charlie Robbins", "email": "charlie@nodejitsu.com" },
+    { "name": "Maciej Malecki", "email": "maciej@nodejitsu.com" }
   ],
   "main": "./lib/cradle",
   "dependencies": { 
@@ -16,12 +17,12 @@
   },
   "devDependencies": { 
     "async": "~0.1.x",
-    "vows": ">=0.5.4"
+    "vows": "0.6.x"
   },
   "scripts": { 
     "test": "node test/helpers/seed.js && vows --spec"
   },
   "engines": { 
-    "node": ">=0.4.0"
+    "node": ">=0.6.0"
   }
 }
