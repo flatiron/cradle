@@ -24,7 +24,6 @@
       "_id": "deleteme" 
     }
   ],
-  "badgers": null,
   "animals/snorlax": [
     {
       "_id": "_design/pigs",
@@ -43,5 +42,7 @@
     {
       "_id": "deleteme" 
     }
-  ]
+  ],
+  "badgers": null,
+  "madeup/ewoks": null
 }
