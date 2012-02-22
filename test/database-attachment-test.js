@@ -6,9 +6,9 @@ var path = require('path'),
     vows = require('vows');
 
 function status(code) {
-    return function (e, res) {
+    return function (e, res, body) {
         assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).status, code);
+        assert.equal((res || e).headers.status || (res || e).statusCode, code);
     };
 }
 
@@ -125,47 +125,41 @@ vows.describe('cradle/database/attachments').addBatch({
                     assert.match(res.rev, /^1-/);
                 }
             }
-        },
+        },*/
         "getting an attachment": {
             "when it exists": {
                 topic: function (db) {
-                    var promise = new(events.EventEmitter), response = {};
-                    doc = {_id:'attachment-getter', _attachments:{ "foo.txt":{content_type:"text/plain", data:"aGVsbG8gd29ybGQ="} }};
+                    var that = this, doc = {
+                        _id:'attachment-getter', 
+                        _attachments:{ 
+                            "foo.txt":{
+                                content_type: "text/plain", 
+                                data: "aGVsbG8gd29ybGQ="
+                            }
+                        }
+                    };
+                    
                     db.save(doc, function (e, res) {
-                        var streamer = db.getAttachment('attachment-getter','foo.txt');
-                        streamer.addListener('response', function (res) {
-                            response.headers = res.headers;
-                            response.headers.status = res.statusCode;
-                            response.body = "";
-                        });
-                        streamer.addListener('data', function (chunk) { response.body += chunk; });
-                        streamer.addListener('end', function () { promise.emit('success', response); });
+                        db.getAttachment('attachment-getter', 'foo.txt', that.callback);
                     });
-                    return promise;
                 },
                 "returns a 200": status(200),
-                "returns the right mime-type in the header": function (res) {
+                "returns the right mime-type in the header": function (err, res, body) {
                     assert.equal(res.headers['content-type'], 'text/plain');
                 },
-                "returns the attachment in the body": function (res) {
-                    assert.equal(res.body, "hello world");
+                "returns the attachment in the body": function (err, res, body) {
+                    assert.equal(body, "hello world");
                 }
             },
             "when not found": {
                 topic: function (db) {
-                    var promise = new(events.EventEmitter), response = {};
-                    db.save({_id:'attachment-not-found'}, function (e, res) {
-                        var streamer = db.getAttachment('attachment-not-found','foo.txt');
-                        streamer.addListener('response', function (res) {
-                            response.headers = res.headers;
-                            response.headers.status = res.statusCode;
-                            promise.emit('success', response);
-                        });
+                    var that = this;
+                    db.save({ _id: 'attachment-not-found' }, function (e, res) {
+                        db.getAttachment('attachment-not-found', 'foo.txt', that.callback);
                     });
-                    return promise;
                 },
                 "returns a 404": status(404)
             }
-        },*/
+        }
     }
 }).export(module);
