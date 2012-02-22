@@ -8,7 +8,7 @@ var path = require('path'),
 var cradle = require('../lib/cradle');
 var document = { _rev: '2-76be', _id: 'f6av8', name: 'buzz', age: 99 };
 
-vows.describe('cradle/Response').addBatch({
+vows.describe('cradle/cesponse').addBatch({
     'A cradle.Response instance': {
         'from a document': {
             topic: new(cradle.Response)(document),
