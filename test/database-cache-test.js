@@ -127,54 +127,6 @@ vows.describe('cradle/database/cache').addBatch({
                     //assert.throws(db.remove('bruno'), Error);
                 }
             }
-        },
-        /*"saveAttachment()": {
-            "updates the cache": {
-                topic: function (db) {
-                    var that = this;
-                    db.save({_id:'attachment-cacher'}, function (e, res) {
-                        db.saveAttachment(res.id, res.rev, 'foo.txt', 'text/plain', 'Foo!', function (attRes) {
-                            that.callback(null, db.cache.get(res.id));
-                        });
-                    });
-                },
-                "with the revision": function (cached) {
-                    assert.match(cached._rev, /^2-/);
-                },
-                "with the _attachments": function (cached) {
-                    assert.ok(cached._attachments);
-                    assert.ok(cached._attachments['foo.txt']);
-                    assert.equal(cached._attachments['foo.txt'].stub, true);
-                },
-                "and is valid enough to re-save": {
-                    topic: function (cached, db) {
-                        var that = this
-                        db.save(mixin({foo:'bar'}, cached), function (e,res) {
-                            db.cache.purge(cached._id);
-                            db.get(cached._id, that.callback);
-                        });
-                    },
-                    "has the attachment": function (res) {
-                        var att = res._attachments['foo.txt'];
-                        assert.equal(att.stub, true);
-                        assert.equal(att.content_type, 'text/plain');
-                        assert.equal(att.length, 4);
-                        assert.equal(att.revpos, 2);
-                    },
-                    "and actually updated the rev": function (res) {
-                        assert.match(res._rev, /^3-/);
-                    }
-                }
-            },
-            "pulls the revision from the cache if not given": {
-                topic: function (db) {
-                    var callback = this.callback;
-                    db.save({_id:'attachment-saving-pulls-rev-from-cache'}, function (e, res) {
-                        db.saveAttachment(res.id, null, 'foo.txt', 'text/plain', 'Foo!', callback);
-                    });
-                },
-                "and saves successfully": status(201)
-            }
-        }*/
+        }
     }
 }).export(module);
