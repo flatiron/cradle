@@ -110,7 +110,6 @@ vows.describe('cradle/database/attachments').addBatch({
                     },
                     "returns a 201": status(201),
                     "returns the revision": function (res) {
-                        //console.dir(arguments[0].stack.split('\n'));
                         assert.ok(res.rev);
                         assert.match(res.rev, /^2/);
                     },
