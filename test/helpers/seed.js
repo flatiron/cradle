@@ -54,3 +54,11 @@ seed.requireSeed = function () {
     }
   }
 };
+
+if (!module.parent) {
+    async.forEach(Object.keys(databases), seed.seedDatabase, function (err) {
+        return err 
+            ? console.log('Error seeding database: ' + err.message)
+            : console.log('Database seed completed.');
+    });
+}

@@ -5,7 +5,7 @@ var path = require('path'),
 
 var cradle = require('../lib/cradle');
 
-vows.describe('cradle/Cache').addBatch({
+vows.describe('cradle/cache').addBatch({
     'A cradle.Connection instance with a *cacheSize* specified': {
         topic: new(cradle.Connection)({ cache: true, cacheSize: 16 }),
         'should set the database cache size appropriately': function (topic) {
