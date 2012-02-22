@@ -80,7 +80,16 @@ vows.describe('cradle/connection').addBatch({
                 assert.equal(c.port, 5984);
             }
         },
-    },
+        "with the port as part of the URL": {
+            topic: function () { return new(cradle.Connection)("https://couch.io:418") },
+            "should read the port from the URL": function (c) {
+                assert.equal(c.protocol, 'https');
+                assert.equal(c.options.secure, true);
+                assert.equal(c.host, 'couch.io');
+                assert.equal(c.port, 418);
+            }
+        }
+    }
 }).addBatch({
     "Connection": {
         topic: function () {
