@@ -335,6 +335,8 @@ You can also *stream* changes, by calling `db.changes` without the callback. Thi
 ``` js
   var feed = db.changes({ since: 42 });
   
+  feed.follow();
+
   feed.on('change', function (change) {
       console.log(change);
   });
