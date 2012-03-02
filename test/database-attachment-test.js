@@ -6,13 +6,6 @@ var path = require('path'),
     vows = require('vows'),
     macros = require('./helpers/macros');
 
-function status(code) {
-    return function (e, res, body) {
-        assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).statusCode, code);
-    };
-}
-
 function mixin(target) {
     var objs = Array.prototype.slice.call(arguments, 1);
     objs.forEach(function (o) {
@@ -81,7 +74,7 @@ vows.describe('cradle/database/attachments').addBatch(
                         }, callback);
                     });
                 },
-                "and saves successfully": status(201)
+                "and saves successfully": macros.status(201)
             }
         }
     })
@@ -103,7 +96,7 @@ vows.describe('cradle/database/attachments').addBatch(
                             }, that.callback);
                         });
                     },
-                    "returns a 201": status(201),
+                    "returns a 201": macros.status(201),
                     "returns the revision": function (res) {
                         assert.ok(res.rev);
                         assert.match(res.rev, /^2/);
@@ -124,7 +117,7 @@ vows.describe('cradle/database/attachments').addBatch(
                             fs.createReadStream(__dirname + "/../README.md").pipe(stream);
                         });
                     },
-                    "returns a 201": status(201),
+                    "returns a 201": macros.status(201),
                     "returns the revision": function (res) {
                         assert.ok(res.rev);
                         assert.match(res.rev, /^2/);
@@ -147,7 +140,7 @@ vows.describe('cradle/database/attachments').addBatch(
                             });
                         });
                     },
-                    "returns a 409": status(409)
+                    "returns a 409": macros.status(409)
                 }
             },
             "to a non-existing document": {
@@ -158,7 +151,7 @@ vows.describe('cradle/database/attachments').addBatch(
                         body: 'Foo!'
                     }, this.callback);
                 },
-                "returns a 201": status(201),
+                "returns a 201": macros.status(201),
                 "returns the revision": function (res) {
                     assert.ok(res.rev);
                     assert.match(res.rev, /^1-/);
@@ -182,7 +175,7 @@ vows.describe('cradle/database/attachments').addBatch(
                         db.getAttachment('attachment-getter', 'foo.txt', that.callback);
                     });
                 },
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns the right mime-type in the header": function (err, res, body) {
                     assert.equal(res.headers['content-type'], 'text/plain');
                 },
@@ -197,7 +190,7 @@ vows.describe('cradle/database/attachments').addBatch(
                         db.getAttachment('attachment-not-found', 'foo.txt', that.callback);
                     });
                 },
-                "returns a 404": status(404)
+                "returns a 404": macros.status(404)
             }
         }
     })
@@ -219,7 +212,7 @@ vows.describe('cradle/database/attachments').addBatch(
                     }, that.callback);
                 });
             },
-            "returns a 201": status(201),
+            "returns a 201": macros.status(201),
             "returns the revision": function (res) {
                 assert.ok(res.rev);
                 assert.match(res.rev, /^3/);
@@ -234,7 +227,7 @@ vows.describe('cradle/database/attachments').addBatch(
                     var stream = db.getAttachment('piped-attachment', 'foo.txt', this.callback);
                     stream.pipe(fs.createWriteStream(path.join(__dirname, 'fixtures', 'README.md')));
                 },
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns the right mime-type in the header": function (err, res, body) {
                     assert.equal(res.headers['content-type'], 'text/plain');
                 },

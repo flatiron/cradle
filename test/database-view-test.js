@@ -6,17 +6,10 @@ var path = require('path'),
     vows = require('vows'),
     macros = require('./helpers/macros');
 
-function status(code) {
-    return function (e, res) {
-        assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).status, code);
-    };
-}
-
 function shouldQueryView(topic, rows, total) {
     return {
         topic: topic,
-        "returns a 200": status(200),
+        "returns a 200": macros.status(200),
         "returns view results": function (res) {
             assert.isArray(res.rows);
             assert.equal(res.rows.length, rows.length);
@@ -91,7 +84,7 @@ vows.describe('cradle/database/view').addBatch(
             topic: function (db) {
                 db.viewCleanup(this.callback);
             },
-            "returns a 202": status(202),
+            "returns a 202": macros.status(202),
             "no error is thrown and we get ok response": function (e, res) {
                 assert.ok(!e);
                 assert.ok(res && res.ok && res.ok === true);

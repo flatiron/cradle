@@ -3,14 +3,8 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
-
-function status(code) {
-    return function (e, res) {
-        assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).status, code);
-    };
-}
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 function shouldQueryCouch(name) {
     return {
@@ -20,20 +14,20 @@ function shouldQueryCouch(name) {
             topic: function (db) {
                 db.info(this.callback);
             },
-            "returns a 200": status(200),
+            "returns a 200": macros.status(200),
             "returns database info": function (info) {
                 assert.equal(info['db_name'], name);
             }
         },
         "fetching a document by id (GET)": {
             topic: function (db) { db.get('mike', this.callback) },
-            "returns a 200": status(200),
+            "returns a 200": macros.status(200),
             "returns the document": function (res) {
                 assert.equal(res.id, 'mike');
             },
             "when not found": {
                 topic: function (_, db) { db.get('tyler', this.callback) },
-                "returns a 404": status(404),
+                "returns a 404": macros.status(404),
                 "returns the error": function (err, res) {
                     assert.isObject(err);
                     assert.isObject(err.headers);
@@ -52,7 +46,7 @@ function shouldQueryCouch(name) {
                 topic: function (db) {
                     db.save('joe', {gender: 'male'}, this.callback);
                 },
-                "creates a new document (201)": status(201),
+                "creates a new document (201)": macros.status(201),
                 "returns the revision": function (res) {
                     assert.ok(res.rev);
                 }
@@ -61,7 +55,7 @@ function shouldQueryCouch(name) {
                 topic: function (db) {
                     db.save('john', {umlauts: 'äöü'}, this.callback);
                 },
-                "creates a new document (201)": status(201)
+                "creates a new document (201)": macros.status(201)
             },
             "with a large doc": {
                 topic: function (db) {
@@ -75,7 +69,7 @@ function shouldQueryCouch(name) {
                         speech: text
                     }, this.callback);
                 },
-                "creates a new document (201)": status(201)
+                "creates a new document (201)": macros.status(201)
             },
             "with a '_design' id": {
                 topic: function (db) {
@@ -87,7 +81,7 @@ function shouldQueryCouch(name) {
                         }
                     }, this.callback);
                 },
-                "creates a doc (201)": status(201),
+                "creates a doc (201)": macros.status(201),
                 "returns the revision": function (res) {
                     assert.ok(res.rev);
                 },
@@ -95,7 +89,7 @@ function shouldQueryCouch(name) {
                     topic: function (res, db) {
                         db.view('horses/all', this.callback);
                     },
-                    "which can be queried": status(200)
+                    "which can be queried": macros.status(200)
                 }
             },
             "without an id (POST)": {},
@@ -129,7 +123,7 @@ function shouldQueryCouch(name) {
                 topic: function (db) {
                     db.all(this.callback);
                 },
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns a list of all docs": function (res) {
                     assert.isArray(res);
                     assert.isNumber(res.total_rows);
@@ -144,7 +138,7 @@ function shouldQueryCouch(name) {
                 topic: function (db) {
                     db.all({ limit: 1 }, this.callback);
                 },
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns a list of all docs": function (res) {
                     assert.isArray(res);
                     assert.isNumber(res.total_rows);
@@ -160,7 +154,7 @@ function shouldQueryCouch(name) {
                 topic: function (db) {
                     db.all({ keys: ['mike'] }, this.callback);
                 },
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns a list of all docs": function (res) {
                     assert.isArray(res);
                     assert.isNumber(res.total_rows);
@@ -185,7 +179,7 @@ function shouldQueryCouch(name) {
                 });
                 return promise;
             },
-            "returns a 201": status(201),
+            "returns a 201": macros.status(201),
             "returns the revision": function (res) {
                 assert.ok(res.rev);
                 assert.match(res.rev, /^2/);
@@ -201,7 +195,7 @@ function shouldQueryCouch(name) {
                 });
                 return promise;
             },
-            "returns a 200": status(200)
+            "returns a 200": macros.status(200)
         }
     }
 }

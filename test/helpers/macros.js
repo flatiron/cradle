@@ -1,4 +1,5 @@
-var cradle = require('../../');
+var assert = require('assert'),
+    cradle = require('../../');
 
 var macros = exports;
 
@@ -13,5 +14,12 @@ macros.database = function (options, tests) {
     };
     return {
         'A `cradle.Connection`': tests
+    };
+};
+
+macros.status = function (code) {
+    return function (e, res, body) {
+        assert.ok(res || e);
+        assert.equal((res || e).headers.status || (res || e).statusCode, code);
     };
 };
