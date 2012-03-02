@@ -23,7 +23,7 @@ function mixin(target) {
 var cradle = require('../lib/cradle');
 
 vows.describe('cradle/database/attachments').addBatch({
-    "A Cradle connection (cache)": {
+    "Database with cache": {
         topic: function () {
             return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
         },
@@ -31,12 +31,12 @@ vows.describe('cradle/database/attachments').addBatch({
             "updates the cache": {
                 topic: function (db) {
                     var that = this;
-                    db.save({ _id:'attachment-cacher' }, function (e, res) {
+                    db.save({ _id: 'attachment-cacher' }, function (e, res) {
                         db.saveAttachment({
                             id: res.id, 
                             rev: res.rev
                         }, {
-                            name: 'foo.txt', 
+                            name: 'cached/foo.txt', 
                             'Content-Type': 'text/plain', 
                             body: 'Foo!'
                         }, function () {
@@ -49,19 +49,19 @@ vows.describe('cradle/database/attachments').addBatch({
                 },
                 "with the _attachments": function (cached) {
                     assert.ok(cached._attachments);
-                    assert.ok(cached._attachments['foo.txt']);
-                    assert.equal(cached._attachments['foo.txt'].stub, true);
+                    assert.ok(cached._attachments['cached/foo.txt']);
+                    assert.equal(cached._attachments['cached/foo.txt'].stub, true);
                 },
                 "and is valid enough to re-save": {
                     topic: function (cached, db) {
                         var that = this
-                        db.save(mixin({foo:'bar'}, cached), function (e,res) {
+                        db.save(mixin({ foo: 'bar' }, cached), function (e,res) {
                             db.cache.purge(cached._id);
                             db.get(cached._id, that.callback);
                         });
                     },
                     "has the attachment": function (res) {
-                        var att = res._attachments['foo.txt'];
+                        var att = res._attachments['cached/foo.txt'];
                         assert.equal(att.stub, true);
                         assert.equal(att.content_type, 'text/plain');
                         assert.equal(att.length, 4);
@@ -174,9 +174,9 @@ vows.describe('cradle/database/attachments').addBatch({
             "when it exists": {
                 topic: function (db) {
                     var that = this, doc = {
-                        _id:'attachment-getter', 
-                        _attachments:{ 
-                            "foo.txt":{
+                        _id: 'attachment-getter', 
+                        _attachments: { 
+                            "foo.txt": {
                                 content_type: "text/plain", 
                                 data: "aGVsbG8gd29ybGQ="
                             }
@@ -271,6 +271,72 @@ vows.describe('cradle/database/attachments').addBatch({
                     );
                     
                     assert.equal(result.reason, 'Document is missing attachment');
+                }
+            }
+        }
+    }
+}).addBatch({
+    "Database with no cache": {
+        topic: function () {
+           return new(cradle.Connection)('127.0.0.1', 5984, { cache: false }).database('pigs');
+        },
+        "removeAttachment()": {
+            "when it exists": {
+                topic: function (db) {
+                    var that = this;
+                    db.get('attachment-getter', function (err, doc) {
+                        db.removeAttachment(doc, 'foo.txt', that.callback);
+                    });
+                },
+                "should remove the attachment": function (err, res) {
+                    assert.isNull(err);
+                    assert.ok(res.ok);
+                }
+            },
+            "when the document doesnt exist": {
+                topic: function (db) {
+                    db.removeAttachment({
+                        id: 'YUNOEXIST',
+                        rev: '2-6bb732ce2ecc7ac85567b444b10590b4'
+                    }, 'foo.txt', this.callback.bind(this, null));
+                },
+                "should respond with the correct error": function (_, err) {
+                    assert.isObject(err);
+                    assert.equal(err.headers.status, 500);
+                    assert.equal(err.error, '{not_found,missing}');
+                }
+            }
+        }
+    }
+}).addBatch({
+    "Database with cache": {
+        topic: function () {
+            return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
+        },
+        "removeAttachment()": {
+            "when it exists": {
+                topic: function (db) {
+                    var that = this;
+                    db.get('attachment-cacher', function (err, doc) {
+                        db.removeAttachment(doc._id, 'cached/foo.txt', that.callback);
+                    });
+                },
+                "should remove the attachment": function (err, res) {
+                    assert.isNull(err);
+                    assert.ok(res.ok);
+                }
+            },
+            "when the document doesnt exist": {
+                topic: function (db) {
+                    db.removeAttachment({
+                        id: 'YUNOEXIST',
+                        rev: '2-6bb732ce2ecc7ac85567b444b10590b4'
+                    }, 'foo.txt', this.callback.bind(this, null));
+                },
+                "should respond with the correct error": function (_, err) {
+                    assert.isObject(err);
+                    assert.equal(err.headers.status, 500);
+                    assert.equal(err.error, '{not_found,missing}');
                 }
             }
         }
