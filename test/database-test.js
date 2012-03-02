@@ -125,18 +125,52 @@ function shouldQueryCouch(name) {
             }
         },
         "getting all documents": {
-            topic: function (db) {
-                db.all(this.callback);
+            "with no options": {
+                topic: function (db) {
+                    db.all(this.callback);
+                },
+                "returns a 200": status(200),
+                "returns a list of all docs": function (res) {
+                    assert.isArray(res);
+                    assert.isNumber(res.total_rows);
+                    assert.isNumber(res.offset);
+                    assert.isArray(res.rows);
+                },
+                "which can be iterated upon": function (res) {
+                    assert.isFunction(res.forEach);
+                }
             },
-            "returns a 200": status(200),
-            "returns a list of all docs": function (res) {
-                assert.isArray(res);
-                assert.isNumber(res.total_rows);
-                assert.isNumber(res.offset);
-                assert.isArray(res.rows);
+            "with { limit: 1 }": {
+                topic: function (db) {
+                    db.all({ limit: 1 }, this.callback);
+                },
+                "returns a 200": status(200),
+                "returns a list of all docs": function (res) {
+                    assert.isArray(res);
+                    assert.isNumber(res.total_rows);
+                    assert.isNumber(res.offset);
+                    assert.isArray(res.rows);
+                    assert.lengthOf(res.rows, 1);
+                },
+                "which can be iterated upon": function (res) {
+                    assert.isFunction(res.forEach);
+                }
             },
-            "which can be iterated upon": function (res) {
-                assert.isFunction(res.forEach);
+            "with { keys: ['mike'] }": {
+                topic: function (db) {
+                    db.all({ keys: ['mike'] }, this.callback);
+                },
+                "returns a 200": status(200),
+                "returns a list of all docs": function (res) {
+                    assert.isArray(res);
+                    assert.isNumber(res.total_rows);
+                    assert.isNumber(res.offset);
+                    assert.isArray(res.rows);
+                    assert.lengthOf(res.rows, 1);
+                },
+                "which can be iterated upon": function (res) {
+                    assert.isFunction(res.forEach);
+                }
             }
         },
         "updating a document (PUT)": {
