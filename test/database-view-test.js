@@ -45,32 +45,35 @@ vows.describe('cradle/database/view').addBatch({
                 function (db) {
                     db.view('pigs/all', this.callback);
                 },
-                ['bill', 'mike']
+                ['bill', 'mike', 'alex']
             ),
             "with a single key": shouldQueryView(
                 function (db) {
                     db.view('pigs/all', { key: 'bill' }, this.callback);
                 },
                 ['bill'],
-                2
+                3
             ),
             "with a startKey and endKey": shouldQueryView(
                 function (db) {
-                    db.view('pigs/all', { startKey: 'aaaa', endKey: 'zzzz' }, this.callback);
+                    db.view('pigs/all', { startkey: 'b', endkey: 'r' }, this.callback);
                 },
-                ['bill', 'mike']
+                ['bill', 'mike'],
+                3
             ),
             "with keys": shouldQueryView(
                 function (db) {
                     db.view('pigs/all', { keys: ['mike', 'bill'] }, this.callback);
                 },
-                ['mike', 'bill']
+                ['mike', 'bill'],
+                3
             ),
             "with a `keys` body": shouldQueryView(
                 function (db) {
                     db.view('pigs/all', { body: { keys: ['mike', 'bill'] } }, this.callback);
                 },
-                ['mike', 'bill']
+                ['mike', 'bill'],
+                3
             )
         },
         // same as the above test, but with a temporary view
@@ -83,7 +86,7 @@ vows.describe('cradle/database/view').addBatch({
                         }
                     }, this.callback);
                 },
-                ['mike', 'bill']
+                ['mike', 'bill', 'alex']
             )
         },
         "cleaning up a view with viewCleanup()": {
@@ -112,7 +115,7 @@ vows.describe('cradle/database/view').addBatch({
                     }, { key: 'mike' }, this.callback);
                 },
                 ['mike'],
-                2
+                3
             )
         }
     }
@@ -128,9 +131,10 @@ vows.describe('cradle/database/view').addBatch({
                         map: function (doc) {
                             if (doc.color) emit(doc._id, doc);
                         }
-                    }, { startKey: 'aaaa', endKey: 'zzzz' }, this.callback);
+                    }, { startkey: 'b', endkey: 'zzzz' }, this.callback);
                 },
-                ['mike', 'bill']
+                ['mike', 'bill'],
+                3
             )
         }
     }

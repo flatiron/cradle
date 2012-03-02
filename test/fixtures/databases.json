@@ -21,7 +21,11 @@
       "color": "blue" 
     },
     {
-      "_id": "deleteme" 
+      "_id": "alex",
+      "color": "red"
+    },
+    {
+      "_id": "deleteme"
     }
   ],
   "animals/snorlax": [
