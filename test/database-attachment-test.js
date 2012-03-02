@@ -36,7 +36,7 @@ vows.describe('cradle/database/attachments').addBatch({
                             id: res.id, 
                             rev: res.rev
                         }, {
-                            name: 'foo.txt', 
+                            name: 'cached/foo.txt', 
                             'Content-Type': 'text/plain', 
                             body: 'Foo!'
                         }, function () {
@@ -49,8 +49,8 @@ vows.describe('cradle/database/attachments').addBatch({
                 },
                 "with the _attachments": function (cached) {
                     assert.ok(cached._attachments);
-                    assert.ok(cached._attachments['foo.txt']);
-                    assert.equal(cached._attachments['foo.txt'].stub, true);
+                    assert.ok(cached._attachments['cached/foo.txt']);
+                    assert.equal(cached._attachments['cached/foo.txt'].stub, true);
                 },
                 "and is valid enough to re-save": {
                     topic: function (cached, db) {
@@ -61,7 +61,7 @@ vows.describe('cradle/database/attachments').addBatch({
                         });
                     },
                     "has the attachment": function (res) {
-                        var att = res._attachments['foo.txt'];
+                        var att = res._attachments['cached/foo.txt'];
                         assert.equal(att.stub, true);
                         assert.equal(att.content_type, 'text/plain');
                         assert.equal(att.length, 4);
@@ -293,7 +293,7 @@ vows.describe('cradle/database/attachments').addBatch({
                     assert.ok(res.ok);
                 }
             },
-            "when it doesnt exist": {
+            "when the document doesnt exist": {
                 topic: function (db) {
                     db.removeAttachment({
                         id: 'YUNOEXIST',
@@ -318,7 +318,7 @@ vows.describe('cradle/database/attachments').addBatch({
                 topic: function (db) {
                     var that = this;
                     db.get('attachment-cacher', function (err, doc) {
-                        db.removeAttachment(doc._id, 'foo.txt', that.callback);
+                        db.removeAttachment(doc._id, 'cached/foo.txt', that.callback);
                     });
                 },
                 "should remove the attachment": function (err, res) {
@@ -326,7 +326,7 @@ vows.describe('cradle/database/attachments').addBatch({
                     assert.ok(res.ok);
                 }
             },
-            "when it doesnt exist": {
+            "when the document doesnt exist": {
                 topic: function (db) {
                     db.removeAttachment({
                         id: 'YUNOEXIST',
