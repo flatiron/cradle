@@ -3,7 +3,8 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 function status(code) {
     return function (e, res) {
@@ -35,11 +36,8 @@ function shouldQueryView(topic, rows, total) {
 
 var cradle = require('../lib/cradle');
 
-vows.describe('cradle/database/view').addBatch({
-    "Database": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+vows.describe('cradle/database/view').addBatch(
+    macros.database({
         "querying a view": {
             "with no options": shouldQueryView(
                 function (db) {
@@ -99,12 +97,9 @@ vows.describe('cradle/database/view').addBatch({
                 assert.ok(res && res.ok && res.ok === true);
             }
         }
-    }
-}).addBatch({
-    "Database": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "querying a temporary view": {
             "with a single key": shouldQueryView(
                 function (db) {
@@ -118,12 +113,9 @@ vows.describe('cradle/database/view').addBatch({
                 3
             )
         }
-    }
-}).addBatch({
-    "Database": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "querying a temporary view": {
             "with a startKey and endKey": shouldQueryView(
                 function (db) {
@@ -137,5 +129,5 @@ vows.describe('cradle/database/view').addBatch({
                 3
             )
         }
-    }
-}).export(module);
+    })
+).export(module);

@@ -3,7 +3,8 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 function status(code) {
     return function (e, res) {
@@ -14,11 +15,8 @@ function status(code) {
 
 var cradle = require('../lib/cradle');
 
-vows.describe('cradle/database/cache').addBatch({
-    "A Cradle connection (cache)": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
-        },
+vows.describe('cradle/database/cache').addBatch(
+    macros.database({ couch: true }, {
         "save()": {
             topic: function (db) {
                 var promise = new(events.EventEmitter);
@@ -128,5 +126,5 @@ vows.describe('cradle/database/cache').addBatch({
                 }
             }
         }
-    }
-}).export(module);
+    })
+).export(module);

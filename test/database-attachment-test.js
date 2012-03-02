@@ -3,7 +3,8 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 function status(code) {
     return function (e, res, body) {
@@ -22,11 +23,8 @@ function mixin(target) {
 
 var cradle = require('../lib/cradle');
 
-vows.describe('cradle/database/attachments').addBatch({
-    "Database with cache": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
-        },
+vows.describe('cradle/database/attachments').addBatch(
+    macros.database({ cache: true }, {
         "saveAttachment()": {
             "updates the cache": {
                 topic: function (db) {
@@ -86,12 +84,9 @@ vows.describe('cradle/database/attachments').addBatch({
                 "and saves successfully": status(201)
             }
         }
-    }
-}).addBatch({
-    "Database with no cache": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "putting an attachment": {
             "to an existing document": {
                 "with given data": {
@@ -205,12 +200,9 @@ vows.describe('cradle/database/attachments').addBatch({
                 "returns a 404": status(404)
             }
         }
-    }
-}).addBatch({
-    "Database with no cache": {
-        topic: function () {
-           return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "saving an attachment with ETag": {
             topic: function (db) {
                 var id = 'attachment-incorrect-revision',
@@ -233,12 +225,9 @@ vows.describe('cradle/database/attachments').addBatch({
                 assert.match(res.rev, /^3/);
             }
         }
-    }
-}).addBatch({
-    "Database with no cache": {
-        topic: function () {
-           return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "getting an attachment with .pipe()": {
             "when it exists": {
                 topic: function (db) {
@@ -274,12 +263,9 @@ vows.describe('cradle/database/attachments').addBatch({
                 }
             }
         }
-    }
-}).addBatch({
-    "Database with no cache": {
-        topic: function () {
-           return new(cradle.Connection)('127.0.0.1', 5984, { cache: false }).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "removeAttachment()": {
             "when it exists": {
                 topic: function (db) {
@@ -307,12 +293,9 @@ vows.describe('cradle/database/attachments').addBatch({
                 }
             }
         }
-    }
-}).addBatch({
-    "Database with cache": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({ cache: true }, {
         "removeAttachment()": {
             "when it exists": {
                 topic: function (db) {
@@ -340,5 +323,5 @@ vows.describe('cradle/database/attachments').addBatch({
                 }
             }
         }
-    }
-}).export(module);
+    })
+).export(module);
