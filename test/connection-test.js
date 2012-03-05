@@ -3,14 +3,8 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
-
-function status(code) {
-    return function (e, res) {
-        assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).status, code);
-    };
-}
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 var cradle = require('../lib/cradle');
 
@@ -98,7 +92,7 @@ vows.describe('cradle/connection').addBatch({
         "getting server info": {
             topic: function (c) { c.info(this.callback) },
 
-            "returns a 200": status(200),
+            "returns a 200": macros.status(200),
             "returns the version number": function (info) {
                 assert.ok(info);
                 assert.match(info.version, /\d+\.\d+\.\d+/);
@@ -108,7 +102,7 @@ vows.describe('cradle/connection').addBatch({
             "with count": {
                 topic: function (c) { c.uuids(42, this.callback) },
 
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns an array of UUIDs": function (uuids) {
                     assert.isArray(uuids);
                     assert.lengthOf(uuids, 42);
@@ -117,7 +111,7 @@ vows.describe('cradle/connection').addBatch({
             "without count": {
                 topic: function (c) { c.uuids(this.callback) },
 
-                "returns a 200": status(200),
+                "returns a 200": macros.status(200),
                 "returns an array of UUIDs": function (uuids) {
                     assert.isArray(uuids);
                     assert.lengthOf(uuids, 1);
@@ -145,7 +139,7 @@ vows.describe('cradle/connection').addBatch({
                 topic: function (c) {
                     c.database('badgers').create(this.callback);
                 },
-                "returns a 201": status(201),
+                "returns a 201": macros.status(201),
                 "creates a database": {
                     topic: function (res, c) { c.database('badgers').exists(this.callback) },
                     "it exists": function (res) { assert.ok(res) }
@@ -155,7 +149,7 @@ vows.describe('cradle/connection').addBatch({
                 topic: function (c) {
                     c.database('madeup/ewoks').create(this.callback);
                 },
-                "returns a 201": status(201),
+                "returns a 201": macros.status(201),
                 "creates a database": {
                     topic: function (res, c) { c.database('madeup/ewoks').exists(this.callback) },
                     "it exists": function (res) { assert.ok(res) }
@@ -167,7 +161,7 @@ vows.describe('cradle/connection').addBatch({
             topic: function (c) {
                 c.database('rabbits').destroy(this.callback);
             },
-            "returns a 200": status(200),
+            "returns a 200": macros.status(200),
             "destroys a database": {
                 topic: function (res, c) {
                     c.database('rabbits').exists(this.callback);

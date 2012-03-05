@@ -3,22 +3,13 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
-
-function status(code) {
-    return function (e, res) {
-        assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).status, code);
-    };
-}
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 var cradle = require('../lib/cradle');
 
-vows.describe('cradle/database/cache').addBatch({
-    "A Cradle connection (cache)": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, { cache: true }).database('pigs');
-        },
+vows.describe('cradle/database/cache').addBatch(
+    macros.database({ couch: true }, {
         "save()": {
             topic: function (db) {
                 var promise = new(events.EventEmitter);
@@ -47,7 +38,7 @@ vows.describe('cradle/database/cache').addBatch({
                     });
                     return promise;
                 },
-                "return a 201": status(201),
+                "return a 201": macros.status(201),
                 "allow an overwrite": function (res) {
                    assert.match(res.rev, /^2/);
                 },
@@ -66,7 +57,7 @@ vows.describe('cradle/database/cache').addBatch({
                 });
                 return promise;
             },
-            "return a 201": status(201),
+            "return a 201": macros.status(201),
             "allow an overwrite": function (res) {
                assert.match(res.rev, /^1/);
             },
@@ -95,7 +86,7 @@ vows.describe('cradle/database/cache').addBatch({
                     });
                     return promise;
                 },
-                "return a 201": status(201),
+                "return a 201": macros.status(201),
                 "allow an overwrite": function (res) {
                    assert.match(res.rev, /^2/);
                 },
@@ -128,5 +119,5 @@ vows.describe('cradle/database/cache').addBatch({
                 }
             }
         }
-    }
-}).export(module);
+    })
+).export(module);

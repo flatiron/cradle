@@ -3,19 +3,13 @@ var path = require('path'),
     events = require('events'),
     http = require('http'),
     fs = require('fs'),
-    vows = require('vows');
-
-function status(code) {
-    return function (e, res) {
-        assert.ok(res || e);
-        assert.equal((res || e).headers.status || (res || e).status, code);
-    };
-}
+    vows = require('vows'),
+    macros = require('./helpers/macros');
 
 function shouldQueryView(topic, rows, total) {
     return {
         topic: topic,
-        "returns a 200": status(200),
+        "returns a 200": macros.status(200),
         "returns view results": function (res) {
             assert.isArray(res.rows);
             assert.equal(res.rows.length, rows.length);
@@ -35,11 +29,8 @@ function shouldQueryView(topic, rows, total) {
 
 var cradle = require('../lib/cradle');
 
-vows.describe('cradle/database/view').addBatch({
-    "Database": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+vows.describe('cradle/database/view').addBatch(
+    macros.database({
         "querying a view": {
             "with no options": shouldQueryView(
                 function (db) {
@@ -93,18 +84,15 @@ vows.describe('cradle/database/view').addBatch({
             topic: function (db) {
                 db.viewCleanup(this.callback);
             },
-            "returns a 202": status(202),
+            "returns a 202": macros.status(202),
             "no error is thrown and we get ok response": function (e, res) {
                 assert.ok(!e);
                 assert.ok(res && res.ok && res.ok === true);
             }
         }
-    }
-}).addBatch({
-    "Database": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "querying a temporary view": {
             "with a single key": shouldQueryView(
                 function (db) {
@@ -118,12 +106,9 @@ vows.describe('cradle/database/view').addBatch({
                 3
             )
         }
-    }
-}).addBatch({
-    "Database": {
-        topic: function () {
-            return new(cradle.Connection)('127.0.0.1', 5984, {cache: false}).database('pigs');
-        },
+    })
+).addBatch(
+    macros.database({
         "querying a temporary view": {
             "with a startKey and endKey": shouldQueryView(
                 function (db) {
@@ -137,5 +122,5 @@ vows.describe('cradle/database/view').addBatch({
                 3
             )
         }
-    }
-}).export(module);
+    })
+).export(module);
