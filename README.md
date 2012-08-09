@@ -368,7 +368,6 @@ Other API methods
 
 - `info()`: Database information
 - `all()`: Get all documents
-- `allBySeq()`: Get all documents by sequence
 - `compact()`: Compact database
 - `viewCleanup()`: Cleanup old view data
 - `replicate(target, options)`: Replicate this database to `target`.
