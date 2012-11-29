@@ -312,7 +312,7 @@ Changes API
 For a one-time `_changes` query, simply call `db.changes` with a callback:
 
 ``` js
-  db.changes(function (list) {
+  db.changes(function (err, list) {
       list.forEach(function (change) { console.log(change) });
   });
 ```
@@ -320,7 +320,7 @@ For a one-time `_changes` query, simply call `db.changes` with a callback:
 Or if you want to see changes since a specific sequence number:
 
 ``` js
-  db.changes({ since: 42 }, function (list) {
+  db.changes({ since: 42 }, function (err, list) {
       ...
   });
 ```
