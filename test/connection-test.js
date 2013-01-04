@@ -153,8 +153,17 @@ vows.describe('cradle/connection').addBatch({
                 "creates a database": {
                     topic: function (res, c) { c.database('madeup/ewoks').exists(this.callback) },
                     "it exists": function (res) { assert.ok(res) }
-                }
-                
+                }   
+            }
+        },
+        "exists()": {
+            "with an invalid name": {
+              topic: function (c) {
+                  c.database('BAD').exists(this.callback);
+              },
+              "should respond with false": {
+                  "it exists": function (exists) { assert.isFalse(exists); }
+              }   
             }
         },
         "destroy()": {
