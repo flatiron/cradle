@@ -69,7 +69,7 @@ Note that you can also use `cradle.setup` to set a global configuration:
 ``` js
   cradle.setup({
     host: 'living-room.couch',
-    cache: true, 
+    cache: true,
     raw: false
   });
 
@@ -153,7 +153,7 @@ In CouchDB you could query this view directly by making an HTTP request to:
   /_design/User/_view/byUsername/?key="luke"
 ```
 
-In `cradle` you can make this same query by using the `.view()` database function: 
+In `cradle` you can make this same query by using the `.view()` database function:
 
 ``` js
   db.view('user/byUsername', { key: 'luke' }, function (err, doc) {
@@ -266,7 +266,7 @@ when saving a design document, cradle guesses you want to create a view, mention
 ``` js
   db.save('_design/laws', {
     views: {},
-    validate_doc_update: 
+    validate_doc_update:
       function (newDoc, oldDoc, usrCtx) {
         if (! /^(light|dark|neutral)$/(newDoc.force))
           throw { error: "invalid value", reason:"force must be dark, light, or neutral" }
@@ -334,7 +334,7 @@ You can also *stream* changes, by calling `db.changes` without the callback. Thi
 
 ``` js
   var feed = db.changes({ since: 42 });
-  
+
   feed.on('change', function (change) {
       console.log(change);
   });
@@ -374,3 +374,14 @@ Other API methods
 
 [0]: https://github.com/iriscouch/follow
 [1]: http://iriscouch.com
+
+
+Testing
+-------
+
+After cloning the repo and installing all dependencies (using `npm install`) you can run all tests using [vows](http://vowsjs.org):
+
+```
+$ node test/helpers/seed.js
+$ vows --spec
+```

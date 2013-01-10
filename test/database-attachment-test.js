@@ -281,8 +281,8 @@ vows.describe('cradle/database/attachments').addBatch(
                 },
                 "should respond with the correct error": function (_, err) {
                     assert.isObject(err);
-                    assert.equal(err.headers.status, 500);
-                    assert.equal(err.error, '{not_found,missing}');
+                    assert.equal(err.headers.status, 409);
+                    assert.equal(err.error, 'conflict');
                 }
             }
         }
@@ -311,8 +311,8 @@ vows.describe('cradle/database/attachments').addBatch(
                 },
                 "should respond with the correct error": function (_, err) {
                     assert.isObject(err);
-                    assert.equal(err.headers.status, 500);
-                    assert.equal(err.error, '{not_found,missing}');
+                    assert.equal(err.headers.status, 409);
+                    assert.equal(err.error, 'conflict');
                 }
             }
         }
