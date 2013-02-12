@@ -14,7 +14,8 @@
     },
     { 
       "_id": "mike",
-      "color": "pink" 
+      "color": "pink",
+      "results": "none"
     },
     { 
       "_id": "bill",
@@ -37,7 +38,8 @@
     },
     { 
       "_id": "mike",
-      "color": "pink" 
+      "color": "pink",
+      "rows": 0
     },
     { 
       "_id": "bill",
