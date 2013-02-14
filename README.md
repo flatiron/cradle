@@ -134,6 +134,16 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
   });
 ```
 
+To use [View Generation Options](http://wiki.apache.org/couchdb/HTTP_view_API#View_Generation_Options) you can use the view Method with three parameters (viewname, options, callback):
+
+``` js
+  db.view('characters/all', {group: true, reduce: true} , function (err, res) {
+      res.forEach(function (row) {
+          console.log("%s is on the %s side of the force.", row.name, row.force);
+      });
+  });
+```
+
 #### Querying a row with a specific key ####
 Lets suppose that you have a design document that you've created:
 
@@ -258,6 +268,7 @@ extremely slow (use it to test views).
       console.log(res);
   });
 ```
+Note: If you must use [View Generation Options](http://wiki.apache.org/couchdb/HTTP_view_API#View_Generation_Options) on your temporary view you can use the three parameter version of the temporaryView() Method - similar to the one described above.
 
 ### creating validation ###
 
