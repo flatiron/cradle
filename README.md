@@ -268,7 +268,7 @@ when saving a design document, cradle guesses you want to create a view, mention
     views: {},
     validate_doc_update:
       function (newDoc, oldDoc, usrCtx) {
-        if (! /^(light|dark|neutral)$/(newDoc.force))
+        if (! /^(light|dark|neutral)$/.test(newDoc.force))
           throw { error: "invalid value", reason:"force must be dark, light, or neutral" }
       }
     }
