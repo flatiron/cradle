@@ -134,6 +134,16 @@ Cradle is also able to fetch multiple documents if you have a list of ids, just 
   });
 ```
 
+You can access the key and value of the response with forEach using two parameters. An optional third parameter will return the id like this example.
+
+``` js
+  db.view('characters/all', function (err, res) {
+      res.forEach(function (key, row, id) {
+          console.log("%s has view key %s.", row.name, key);
+      });
+  });
+```
+
 To use [View Generation Options](http://wiki.apache.org/couchdb/HTTP_view_API#View_Generation_Options) you can use the view Method with three parameters (viewname, options, callback):
 
 ``` js
