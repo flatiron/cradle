@@ -363,7 +363,164 @@ You can also *stream* changes, by calling `db.changes` without the callback. Thi
 
 In this case, it returns an instance of `follow.Feed`, which behaves very similarly to node's `EventEmitter` API. For full documentation on the options available to you when monitoring CouchDB with `.changes()` see the [follow documentation][0].
 
+Attachments
+-----------
+Cradle supports writing, reading, and removing attachments. The read and write operations can be either buffered or streaming
+## Writing ##
+You can buffer the entire attachment body and send it all at once as a single request. The callback function will fire after the attachment upload is complete or an error occurs
+**Syntax**
+```js
+db.saveAttachment(idData, attachmentData, callbackFunction)
+```
+**Example**
+Say you want to save a text document as an attachment with the name 'fooAttachment.txt' and the content 'Foo document text'
+``` js
+var doc = <some existing document>
+var id = doc._id
+var rev = doc._rev
+var idAndRevData = {
+  id: id,
+  rev: rev
+}
+var attachmentData = {
+  name: 'fooAttachment.txt',
+  'Content-Type': 'text/plain',
+  body: 'Foo document text'
+}
+db.saveAttachment(idAndRevData, attachmentData, function (err, reply) {
+  if (err) {
+    console.dir(err)
+    return
+  }
+  console.dir(reply)
+})
+```
 
+
+### Streaming ###
+You can use a read stream to upload the attachment body rather than buffering the entire body first. The callback function will fire after the streaming upload completes or an error occurs
+**Syntax**
+```js
+var doc = savedDoc // <some saved couchdb document which has an attachment>
+var id = doc._id
+var rev = doc._rev
+var idAndRevData = {
+  id: id,
+  rev: rev
+}
+var attachmentData = {
+  name: attachmentName               // something like 'foo.txt'
+  'Content-Type': attachmentMimeType // something like 'text/plain', 'application/pdf', etc.
+  body: rawAttachmentBody            // something like 'foo document body text'
+}
+var readStream = fs.createReadStream('/path/to/file/')
+var writeStream  = db.saveAttachment(idData, attachmentData, callbackFunction)
+readStream.pipe(writeStream)
+```
+When the streaming upload is complete the callback function will fire
+
+
+**Example**
+Attach a pdf file with the name 'bar.pdf' located at path './data/bar.pdf' to an existing document
+
+```js
+var path = require('path')
+var fs = require('fs')
+// this document should already be saved in the couchdb database
+var doc = {
+  _id: 'fooDocumentID',
+  _rev: 'fooDocumentRev'
+}
+var idData = {
+  id: doc._id,
+  rev: doc._rev
+}
+var filename = 'bar.pdf' // this is the filename that will be used in couchdb. It can be different from your source filename if desired
+var filePath = path.join(__dirname, 'data', 'bar.pdf')
+var readStream = fs.createReadStream
+// note that there is no body field here since we are streaming the upload
+var attachmentData = {
+  name: 'fooAttachment.txt',
+  'Content-Type': 'text/plain'
+}
+db.saveAttachment(idData, attachmentData, function (err, reply) {
+  if (err) {
+    console.dir(err)
+    return
+  }
+  console.dir(reply)
+}, readStream)
+```
+
+
+## Reading ##
+
+
+### Buffered
+You can buffer the entire attachment and receive it all at once. The callback function will fire after the download is complete or an error occurs. The second parameter in the callback will be the binary data of the attachment
+**Syntax**
+```js
+db.getAttachment(documentID, attachmentName, callbackFunction)
+```
+**Example**
+ Say you want to read back an attachment that was saved with the name 'foo.txt'
+```js
+var doc = <some saved document that has an attachment with name *foo.txt*>
+var id = doc._id
+var attachmentName = 'foo.txt'
+db.getAttachment(id, attachmentName, function (err, reply) {
+  if (err) {
+    console.dir(err)
+    return
+  }
+  console.dir(reply)
+})
+```
+
+### Streaming
+You can stream the attachment as well. If the attachment is large it can be useful to stream it to limit memory consumption. The callback function will fire once the download stream is complete. Note that there is only a single error parameter passed to the callback function. The error is null is no errors occured or an error object if there was an error downloading the attachment. There is no second parameter containing the attachment data like in the buffered read example
+**Syntax**
+```js
+var readStream = db.getAttachment(documentID, attachmentName, callbackFunction)
+```
+
+**Example**
+ Say you want to read back an attachment that was saved with the name 'foo.txt'. However the attachment foo.txt is very large so you want to stream it to disk rather than buffer the entire file into memory
+```js
+var doc = <some saved document that has an attachment with name *foo.txt*>
+var id = doc._id
+var attachmentName = 'foo.txt'
+var downloadPath = path.join(__dirname, 'foo_download.txt')
+var writeStream = fs.createWriteStream(downloadPath)
+var readStream = db.getAttachment('piped-attachment', 'foo.txt', function (err) { // note no second reply paramter
+  if (err) {
+    console.dir(err)
+    return
+  }
+  console.dir('download completed and written to file on disk at path', downloadPath)
+})
+readStream.pipe(writeStream)
+```
+## Removing
+You can remove uploaded attachments with a _id and an attachment name
+**Syntax**
+```js
+db.removeAttachment(documentID, attachmentName, callbackFunction)
+```
+**Example**
+ Say you want to remove an attachment that was saved with the name 'foo.txt'
+```js
+var doc = <some saved document that has an attachment with name *foo.txt*>
+var id = doc._id
+var attachmentName = 'foo.txt'
+db.removeAttachment(id, attachmentName, function (err, reply) {
+  if (err) {
+    console.dir(err)
+    return
+  }
+  console.dir(reply)
+})
+```
 Other API methods
 -----------------
 
