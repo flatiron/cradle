@@ -368,6 +368,7 @@ Attachments
 Cradle supports writing, reading, and removing attachments. The read and write operations can be either buffered or streaming
 ## Writing ##
 You can buffer the entire attachment body and send it all at once as a single request. The callback function will fire after the attachment upload is complete or an error occurs
+
 **Syntax**
 ```js
 db.saveAttachment(idData, attachmentData, callbackFunction)
@@ -399,6 +400,7 @@ db.saveAttachment(idAndRevData, attachmentData, function (err, reply) {
 
 ### Streaming ###
 You can use a read stream to upload the attachment body rather than buffering the entire body first. The callback function will fire after the streaming upload completes or an error occurs
+
 **Syntax**
 ```js
 var doc = savedDoc // <some saved couchdb document which has an attachment>
@@ -458,6 +460,7 @@ db.saveAttachment(idData, attachmentData, function (err, reply) {
 
 ### Buffered
 You can buffer the entire attachment and receive it all at once. The callback function will fire after the download is complete or an error occurs. The second parameter in the callback will be the binary data of the attachment
+
 **Syntax**
 ```js
 db.getAttachment(documentID, attachmentName, callbackFunction)
@@ -479,6 +482,7 @@ db.getAttachment(id, attachmentName, function (err, reply) {
 
 ### Streaming
 You can stream the attachment as well. If the attachment is large it can be useful to stream it to limit memory consumption. The callback function will fire once the download stream is complete. Note that there is only a single error parameter passed to the callback function. The error is null is no errors occured or an error object if there was an error downloading the attachment. There is no second parameter containing the attachment data like in the buffered read example
+
 **Syntax**
 ```js
 var readStream = db.getAttachment(documentID, attachmentName, callbackFunction)
@@ -503,6 +507,7 @@ readStream.pipe(writeStream)
 ```
 ## Removing
 You can remove uploaded attachments with a _id and an attachment name
+
 **Syntax**
 ```js
 db.removeAttachment(documentID, attachmentName, callbackFunction)
