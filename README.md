@@ -181,6 +181,55 @@ In `cradle` you can make this same query by using the `.view()` database functio
   });
 ```
 
+#### Querying a view with an array key
+
+Say you create view for cars that has an array key with make and model
+``` js
+db.save('_design/cars', {
+  views: {
+    byMakeAndModel: {
+      map: function (doc) {
+        if (doc.resource === 'Car' && doc.make && doc.model) {
+          var key = [doc.make, doc.model]
+          emit(key, doc)
+        }
+      }
+    }
+  }
+})
+```
+If you want all the cars made by *Ford* with a model name between *Rav4* and later (alphabetically sorted).
+In CouchDB you could query this view directly by making an HTTP request to:
+```
+  /_design/User/_view/byMakeAndModel/?startkey=["Ford"]&endkey=["Ford", "\u9999"]
+```
+
+In `cradle` you can make this same query by using the `.view()` database function with `startkey` and `endkey` options.
+
+``` js
+var util = require('util')
+var opts = {
+  startkey: ['Ford'],
+  endkey: ['Ford', '\u9999']
+}
+db.view('cars/', opts, function (err, docs) {
+  if (err) {
+    util.error(err)
+    return
+  }
+  util.debug(docs)
+});
+```
+ In the options object you can also optionally specify whether or not to `group` and `reduce` the output. In this example `reduce` must be false since there is no reduce function defined for the `cars/byMakeAndModel`. With grouping and reducing the options object would look like:
+``` js
+var opts = {
+  startkey: ['Ford'],
+  endkey: ['Ford', '\u9999'],
+  group: true,
+  reduce: true
+}
+```
+
 ### creating/updating documents ###
 
 In general, document creation is done with the `save()` method, while updating is done with `merge()`.
