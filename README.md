@@ -376,6 +376,18 @@ or
   });
 ```
 
+Retry on Connection Issues
+--------------------------
+
+For a unreliable connection, you can have non-streaming queries automatically retry:
+
+``` js
+  var connection = new(cradle.Connection)('couch.io', 443, {
+      retries: 3,
+      retryTimeout: 30 * 1000
+  });
+```
+
 Changes API
 -----------
 
