@@ -1,6 +1,6 @@
 {
   "name": "cradle",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "the high-level, caching, CouchDB library",
   "url": "http://cloudhead.io/cradle",
   "keywords": ["couchdb", "database", "couch"],
