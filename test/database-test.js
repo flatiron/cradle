@@ -75,7 +75,7 @@ function shouldQueryCouch(name) {
                 topic: function (db) {
                     db.save('_design/search_couch_lucene', {
                         indexes: {
-                            search_view:{
+                            search_name:{
                                 index: function(doc){index('default', doc.name);
                                 }
                             }
