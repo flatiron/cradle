@@ -616,6 +616,45 @@ Other API methods
 - `viewCleanup()`: Cleanup old view data
 - `replicate(target, options)`: Replicate this database to `target`.
 
+### cache API ###
+
+When cache is enabled (default is true), a document is loaded into cradle's cache when it's retrieved or saved. In the event you wish to keep caching enabled, but invalidate specific items - such as those which may have been updated elsewhere. You can use the API below.
+
+**HAS**
+```js
+db.cache.has('docid');  //returns true if exists, false if not
+```
+
+**GET**
+```js
+db.cache.get('docid');  //returns the document from the cache
+```
+
+**PURGE**
+```js
+db.cache.purge('docid');  //remove this item from the cache
+```
+
+**SAVE**
+```js
+db.cache.save('docid', doc);  //saves the provided document into the cache
+```
+
+**Example**
+This is an example from an application using express to receive a post request when a documentid has been updated.
+```js
+app.post('/dbcache/:id', function (req, res) {
+  if(db.cache.has(req.params.id)) {
+      db.cache.purge(req.params.id);
+    res.send({ status:"ok", id: req.params.id, action: 'deleted'});
+  }
+  else {
+    res.send({ status:"not found", id: req.params.id, action: "none"}, 404);
+  }
+});
+```
+
+
 [0]: https://github.com/iriscouch/follow
 [1]: http://iriscouch.com
 
