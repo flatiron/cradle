@@ -81,7 +81,9 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 ``` js
   var db = c.database('starwars');
-  db.create();
+  db.create(function(err){
+    /* do something if there's an error */
+  });
 ```
 
 #### checking for database existence ####
