@@ -15,7 +15,7 @@ function shouldCallUpdate(path, id, options, originalInput) {
             assert.ok(res.id);
         },
         "correctly parses body/form input": function(res) {
-            assert.ok(res.inputType)
+            assert.ok(res.inputType);
             assert.ok(res.parsedInput);
             assert.deepEqual(res.parsedInput, originalInput);
         }
@@ -60,11 +60,13 @@ vows.describe('cradle/database').addBatch(
         "update() on void document": {
             "passing a flat(untyped) object as form": shouldCallUpdate('pigs/parsing', null, {form: flatObject}, flatObject),
             "passing a flat object in the body": shouldCallUpdate('pigs/parsing', null, {body: fullObject}, fullObject),
-            "passing a full object in the body": shouldCallUpdate('pigs/parsing', null, {body: fullObject}, fullObject)
+            "passing a full object in the body": shouldCallUpdate('pigs/parsing', null, {body: fullObject}, fullObject),
+            "passing both a body and a form object(ignored)": shouldCallUpdate('pigs/parsing', null, {form:flatObject, body:fullObject}, fullObject)
         }/*,
         "update() on existing document": {
-            "passing options.body": shouldCallUpdate('pigs/jsonUpdate', 'mike', {body: object}, object),
-            "passing options.form": shouldCallUpdate('pigs/formUpdate', 'bill', {form: object}, object)
+            "passing a flat(untyped) object as form": shouldCallUpdate('pigs/parsing', 'mike', {form: flatObject}, flatObject),
+            "passing a flat object in the body": shouldCallUpdate('pigs/parsing', 'bill', {body: fullObject}, fullObject),
+            "passing a full object in the body": shouldCallUpdate('pigs/parsing', 'alex', {body: fullObject}, fullObject)
         }*/
     })
 ).export(module);

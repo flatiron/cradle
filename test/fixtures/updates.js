@@ -7,6 +7,8 @@ exports.parsing = function(doc, req)
 		ok: true,
 		id: doc._id,
 		inputType: req.headers['Content-Type'] || req.headers['Content-type'],
+		reqBody: req.query.body,
+		reqForm: req.query.form,
 		parsedInput: null
 	};
 	// If received and parsed a form
