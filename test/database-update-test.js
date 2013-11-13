@@ -59,7 +59,7 @@ vows.describe('cradle/database/update').addBatch(
                     assert.equal(req.query.array, '');
                 }
             },
-            "called with a simple body option": {
+            "called with a simple 'body' option": {
                 topic: function(db) {
                     db.update('pigs/echo', null, { body:"I am the body" }, this.callback);
                 }
@@ -67,26 +67,30 @@ vows.describe('cradle/database/update').addBatch(
                 "receives empty request body": function(req) {
                     assert.equal(req.body, '');
                 },
-                "receives 'body' query parameter": function(req) {
+                "correctly receives the option as a query parameter": function(req) {
                     assert.ok(req.query.body)
                     assert.equal(req.query.body, "I am the body");
                 }
             },
-            "called with a (deep) complex body option": {
+            "called with a (deep) complex 'body' option": {
                 topic: function(db) {
                     db.update('pigs/echo', null, { body:fullObject }, this.callback);
                 }
                 ,
-                "{FAIL} receives a json-encoded body string in the request": function(req) {
-                    assert.ok(req.body);
-                    assert.equal(req.body, JSON.stringify(fullObject));
+                "receives a json-encoded request": function(req) {
+                    assert.ok(req.headers['Content-Type'] == 'application/json'
+                    || req.headers['Content-type'] == 'application/json');
                 },
-                "receives empty 'body' query parameter": function(req) {
+                "correctly receives the body object in the request": function(req) {
+                    assert.ok(req.body);
+                    assert.deepEqual(JSON.parse(req.body), fullObject);
+                },
+                "receives a empty 'body' query parameter": function(req) {
                     assert.ok(req.query)
                     assert.equal(req.query.body, '');
                 }
             },
-            "called with a simple form option": {
+            "called with a simple 'form' option": {
                 topic: function(db) {
                     db.update('pigs/echo', null, { form:"I am the form" }, this.callback);
                 }
@@ -94,22 +98,27 @@ vows.describe('cradle/database/update').addBatch(
                 "does not receive a parsed form object in the request": function(req) {
                     assert.deepEqual(req.form, {});
                 },
-                "receives 'form' query parameter": function(req) {
+                "correctly receives the options as a query parameter": function(req) {
                     assert.ok(req.query.form)
                     assert.equal(req.query.form, "I am the form");
                 }
             },
-            "called with a (shallow) complex form option": {
+            "called with a (shallow) complex 'form' option": {
                 topic: function(db) {
                     db.update('pigs/echo', null, { form:flatObject }, this.callback);
                 }
                 ,
-                "{FAIL} receives a parsed form object in the request": function(req) {
+                "receives a x-www-form-urlencoded request": function(req) {
+                    assert.ok(
+                        req.headers['Content-Type'].indexOf('application/x-www-form-urlencoded') == 0
+                     || req.headers['Content-type'].indexOf('application/x-www-form-urlencoded') == 0
+                    );
+                },
+                "correctly receives the form object in the request": function(req) {
                     assert.ok(req.form);
                     assert.deepEqual(req.form, flatObject);
                 },
                 "receives empty 'form' query parameter": function(req) {
-                    assert.ok(req.query.form);
                     assert.equal(req.query.form, '');
                 }
             }
