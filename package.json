@@ -10,19 +10,19 @@
     { "name": "Maciej Malecki", "email": "maciej@nodejitsu.com" }
   ],
   "main": "./lib/cradle",
-  "dependencies": { 
-    "follow": "0.8.x",
+  "dependencies": {
+    "follow": "0.10.x",
     "request": "2.x.x",
     "vargs": "0.1.0"
   },
-  "devDependencies": { 
-    "async": "~0.1.x",
-    "vows": "0.6.x"
+  "devDependencies": {
+    "async": "~0.2.10",
+    "vows": "0.7.x"
   },
-  "scripts": { 
+  "scripts": {
     "test": "node test/helpers/seed.js && vows --spec"
   },
-  "engines": { 
+  "engines": {
     "node": ">=0.6.0"
   }
 }
