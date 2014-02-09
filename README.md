@@ -58,7 +58,8 @@ Cradle's API builds right on top of Node's asynch API. Every asynch method takes
 ``` js
   new(cradle.Connection)('http://living-room.couch', 5984, {
       cache: true,
-      raw: false
+      raw: false,
+      forceSave: true
   });
 ```
 
@@ -70,7 +71,8 @@ Note that you can also use `cradle.setup` to set a global configuration:
   cradle.setup({
     host: 'living-room.couch',
     cache: true,
-    raw: false
+    raw: false,
+    forceSave: true
   });
 
   var c = new(cradle.Connection),
