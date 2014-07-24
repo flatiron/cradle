@@ -172,7 +172,7 @@ Lets suppose that you have a design document that you've created:
 In CouchDB you could query this view directly by making an HTTP request to:
 
 ```
-  /_design/User/_view/byUsername/?key="luke"
+  /_design/user/_view/byUsername/?key="luke"
 ```
 
 In `cradle` you can make this same query by using the `.view()` database function:
@@ -203,7 +203,7 @@ db.save('_design/cars', {
 If you want all the cars made by *Ford* with a model name between *Rav4* and later (alphabetically sorted).
 In CouchDB you could query this view directly by making an HTTP request to:
 ```
-  /_design/User/_view/byMakeAndModel/?startkey=["Ford"]&endkey=["Ford", "\u9999"]
+  /_design/cars/_view/byMakeAndModel/?startkey=["Ford"]&endkey=["Ford", "\u9999"]
 ```
 
 In `cradle` you can make this same query by using the `.view()` database function with `startkey` and `endkey` options.
