@@ -163,7 +163,7 @@ Lets suppose that you have a design document that you've created:
   db.save('_design/user', {
     views: {
       byUsername: {
-        map: 'function (doc) { if (doc.resource === 'User') { emit(doc.username, doc) } }'
+        map: 'function (doc) { if (doc.resource === "User") { emit(doc.username, doc) } }'
       }
     }
   });
