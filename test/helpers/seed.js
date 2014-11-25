@@ -5,6 +5,7 @@ var assert = require('assert'),
     request = require('request');
     
 var databases = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fixtures', 'databases.json'), 'utf8'));
+var updates = require('../fixtures/updates.js');
 
 var seed = exports;
 
@@ -30,6 +31,10 @@ seed.seedDatabase = function (name, callback) {
     }
     
     function putDoc (doc, next) {
+      if(doc._id.indexOf('_design/') == 0) {
+        doc.updates = {}
+        for(var u in updates) doc.updates[u] = updates[u].toString();
+      }
       request({
         method: 'PUT',
         url: 'http://127.0.0.1:5984/' + encodeURIComponent(name) + '/' + doc._id,
