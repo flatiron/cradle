@@ -208,6 +208,12 @@ vows.describe('cradle/database').addBatch({
             return new(cradle.Connection)('127.0.0.1', 5984, {cache: false});
         },
         "database() with no /": shouldQueryCouch('pigs'),
-        "database() with /": shouldQueryCouch('animals/snorlax')
+        "database() with /": shouldQueryCouch('animals/snorlax'),
+        "update()": {
+            topic: function (db) { db.database('pigs').update('pigs/newVersion', 'updateme', undefined, { foo: 123 }, this.callback) },
+            "responds with the document": function (res) {
+                assert(JSON.parse(res).foo === 123);
+            }
+        },
     }
 }).export(module);
