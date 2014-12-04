@@ -16,8 +16,8 @@
     "vargs": "0.1.0"
   },
   "devDependencies": {
-    "async": "~0.2.10",
-    "vows": "0.7.x"
+    "async": "~0.9.0",
+    "vows": "0.8.x"
   },
   "scripts": {
     "test": "node test/helpers/seed.js && vows --spec"
