@@ -359,8 +359,17 @@ To remove a document, you call the `remove()` method, passing the latest documen
   });
 ```
 
-
 If `remove` is called without a revision, and the document was recently fetched from the database, it will attempt to use the cached document's revision, providing caching is enabled.
+
+### update handlers ###
+
+Update handlers can be used by calling the `update()` method, specifying the update handler name, and optionally the document id, the query object and the document body object. Only the update handler name is a required function parameter. Note that CouchDB is able to parse query options only if the URI-encoded length is less than 8197 characters. Use the body parameter for larger objects.
+
+``` js
+  db.update('my_designdoc/update_handler_name', 'luke', undefined, { my_param: false }, function (err, res) {
+      // Handle the response, specified by the update handler
+  });
+```
 
 Connecting with authentication and SSL
 --------------------------------------
