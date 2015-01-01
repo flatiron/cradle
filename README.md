@@ -380,7 +380,7 @@ Connecting with authentication and SSL
   });
 ```
 
-or 
+or providing a self signed CA certificate
 
 ``` js
   var connection = new(cradle.Connection)('https://couch.io', 443, {
