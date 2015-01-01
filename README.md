@@ -380,6 +380,15 @@ Connecting with authentication and SSL
   });
 ```
 
+or 
+
+``` js
+  var connection = new(cradle.Connection)('https://couch.io', 443, {
+      auth: { username: 'john', password: 'fha82l' },
+      ca: fs.readFileSync('path_to_self_signed_ca.crt')
+  });
+```
+
 or
 
 ``` js
