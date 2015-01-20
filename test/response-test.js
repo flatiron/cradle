@@ -83,6 +83,10 @@ vows.describe('cradle/response').addBatch({
 
             'should have preserved the original id value': function (topic) {
                 assert.equal(topic.id, '10009');
+            },
+
+            'should keep the id property enumerable': function (topic) {
+                assert(Object.keys(topic).indexOf('id') >= 0);
             }
         }
     }
