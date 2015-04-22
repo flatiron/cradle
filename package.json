@@ -1,13 +1,14 @@
 {
-  "name": "cradle",
-  "version": "0.6.9",
-  "description": "the high-level, caching, CouchDB library",
+  "name": "cradle-proxy",
+  "version": "0.0.1",
+  "description": "Cradle 0.6.9 with support for a path in host, see ihttps://github.com/flatiron/cradle/pull/284, High-level, caching, CouchDB library",
   "url": "http://cloudhead.io/cradle",
-  "keywords": ["couchdb", "database", "couch"],
+  "keywords": ["couchdb", "database", "couch", "path"],
   "author": "Alexis Sellier <self@cloudhead.net>",
   "contributors": [
     { "name": "Charlie Robbins", "email": "charlie@nodejitsu.com" },
-    { "name": "Maciej Malecki", "email": "maciej@nodejitsu.com" }
+    { "name": "Maciej Malecki", "email": "maciej@nodejitsu.com" },
+    { "name": "Pieter van der Eems", "email": "github@eemco.nl"}
   ],
   "main": "./lib/cradle",
   "dependencies": {
@@ -25,5 +26,5 @@
   "engines": {
     "node": ">=0.8.0"
   },
-  "repository": "flatiron/cradle"
+  "repository": "pietervandereems/cradle"
 }
