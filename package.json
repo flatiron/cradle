@@ -1,6 +1,6 @@
 {
   "name": "cradle-proxy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Cradle 0.6.9 with support for a path in host, see ihttps://github.com/flatiron/cradle/pull/284, High-level, caching, CouchDB library",
   "url": "http://cloudhead.io/cradle",
   "keywords": ["couchdb", "database", "couch", "path"],
