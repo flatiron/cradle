@@ -3,11 +3,21 @@
   "version": "0.7.0",
   "description": "the high-level, caching, CouchDB library",
   "url": "http://cloudhead.io/cradle",
-  "keywords": ["couchdb", "database", "couch"],
+  "keywords": [
+    "couchdb",
+    "database",
+    "couch"
+  ],
   "author": "Alexis Sellier <self@cloudhead.net>",
   "contributors": [
-    { "name": "Charlie Robbins", "email": "charlie@nodejitsu.com" },
-    { "name": "Maciej Malecki", "email": "maciej@nodejitsu.com" }
+    {
+      "name": "Charlie Robbins",
+      "email": "charlie@nodejitsu.com"
+    },
+    {
+      "name": "Maciej Malecki",
+      "email": "maciej@nodejitsu.com"
+    }
   ],
   "main": "./lib/cradle",
   "dependencies": {
@@ -17,6 +27,8 @@
   },
   "devDependencies": {
     "async": "~0.9.0",
+    "proxyquire": "^1.7.3",
+    "sinon": "^1.17.2",
     "vows": "0.8.x"
   },
   "scripts": {
