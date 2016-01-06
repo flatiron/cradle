@@ -59,7 +59,10 @@ Cradle's API builds right on top of Node's asynch API. Every asynch method takes
   new(cradle.Connection)('http://living-room.couch', 5984, {
       cache: true,
       raw: false,
-      forceSave: true
+      forceSave: true,
+      request: {
+        //Pass through configuration to `request` library for all requests on this connection.
+      }
   });
 ```
 
