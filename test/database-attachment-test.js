@@ -23,14 +23,20 @@ vows.describe('cradle/database/attachments').addBatch(
                 topic: function (db) {
                     var that = this;
                     db.save({ _id: 'attachment-cacher' }, function (e, res) {
+                        if (e) {
+                            console.error(e);
+                        }
                         db.saveAttachment({
-                            id: res.id, 
+                            id: res.id,
                             rev: res.rev
                         }, {
-                            name: 'cached/foo.txt', 
-                            'Content-Type': 'text/plain', 
+                            name: 'cached/foo.txt',
+                            'Content-Type': 'text/plain',
                             body: 'Foo!'
-                        }, function () {
+                        }, function (e, res) {
+                            if (e) {
+                                console.error(e);
+                            }
                             that.callback(null, db.cache.get(res.id));
                         });
                     });
@@ -68,8 +74,8 @@ vows.describe('cradle/database/attachments').addBatch(
                     var callback = this.callback;
                     db.save({ _id: 'attachment-saving-pulls-rev-from-cache' }, function (e, res) {
                         db.saveAttachment(res.id, {
-                            name: 'foo.txt', 
-                            contentType: 'text/plain', 
+                            name: 'foo.txt',
+                            contentType: 'text/plain',
                             body: 'Foo!'
                         }, callback);
                     });
@@ -87,11 +93,11 @@ vows.describe('cradle/database/attachments').addBatch(
                         var that = this;
                         db.save({_id: 'complete-attachment'}, function (e, res) {
                             db.saveAttachment({
-                                id: res.id, 
+                                id: res.id,
                                 rev: res.rev
                             }, {
-                                name: 'foo.txt', 
-                                'content-type': 'text/plain', 
+                                name: 'foo.txt',
+                                'content-type': 'text/plain',
                                 body: 'Foo!'
                             }, that.callback);
                         });
@@ -107,13 +113,13 @@ vows.describe('cradle/database/attachments').addBatch(
                         var callback = this.callback, filestream;
                         db.save({ _id: 'piped-attachment' }, function (e, res) {
                             var stream = db.saveAttachment({
-                                id: res.id, 
+                                id: res.id,
                                 rev: res.rev
                             }, {
-                                name: 'foo.txt', 
+                                name: 'foo.txt',
                                 contentType: 'text/plain'
                             }, callback);
-                            
+
                             fs.createReadStream(__dirname + "/../README.md").pipe(stream);
                         });
                     },
@@ -130,11 +136,11 @@ vows.describe('cradle/database/attachments').addBatch(
                             oldRev = res.rev;
                             db.save({_id: 'attachment-incorrect-revision', _rev:res.rev}, function (e, res) {
                                 db.saveAttachment({
-                                    id: res.id, 
+                                    id: res.id,
                                     rev: oldRev
                                 }, {
-                                    name: 'foo.txt', 
-                                    contentType: 'text/plain', 
+                                    name: 'foo.txt',
+                                    contentType: 'text/plain',
                                     body: 'Foo!'
                                 }, callback);
                             });
@@ -146,8 +152,8 @@ vows.describe('cradle/database/attachments').addBatch(
             "to a non-existing document": {
                 topic: function (db) {
                     db.saveAttachment('standalone-attachment', {
-                        name: 'foo.txt', 
-                        contentType: 'text/plain', 
+                        name: 'foo.txt',
+                        contentType: 'text/plain',
                         body: 'Foo!'
                     }, this.callback);
                 },
@@ -162,15 +168,15 @@ vows.describe('cradle/database/attachments').addBatch(
             "when it exists": {
                 topic: function (db) {
                     var that = this, doc = {
-                        _id: 'attachment-getter', 
-                        _attachments: { 
+                        _id: 'attachment-getter',
+                        _attachments: {
                             "foo.txt": {
-                                content_type: "text/plain", 
+                                content_type: "text/plain",
                                 data: "aGVsbG8gd29ybGQ="
                             }
                         }
                     };
-                    
+
                     db.save(doc, function (e, res) {
                         db.getAttachment('attachment-getter', 'foo.txt', that.callback);
                     });
@@ -200,15 +206,15 @@ vows.describe('cradle/database/attachments').addBatch(
             topic: function (db) {
                 var id = 'attachment-incorrect-revision',
                     that = this;
-                
+
                 db.head('attachment-incorrect-revision', function (err, _doc) {
                   db.saveAttachment({
-                      id: id, 
+                      id: id,
                       rev: _doc.etag,
                     }, {
                        name: 'etag-foo.txt',
                        contentType: 'text/plain',
-                       body: 'FOOO!!' 
+                       body: 'FOOO!!'
                     }, that.callback);
                 });
             },
@@ -233,7 +239,7 @@ vows.describe('cradle/database/attachments').addBatch(
                 },
                 "should write the correct attachment to disk": function (err, res, body) {
                     assert.isNull(err);
-                    
+
                     assert.equal(
                         fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8'),
                         fs.readFileSync(path.join(__dirname, 'fixtures', 'README.md'), 'utf8')
@@ -244,14 +250,14 @@ vows.describe('cradle/database/attachments').addBatch(
                 topic: function (db) {
                     var stream = db.getAttachment('attachment-not-found', 'foo.txt');
                     stream.pipe(fs.createWriteStream(path.join(__dirname, 'fixtures', 'not-found.txt')));
-                    
+
                     stream.on('end', this.callback);
                 },
                 "should write the error to disk": function () {
                     var result = JSON.parse(
                         fs.readFileSync(path.join(__dirname, 'fixtures', 'not-found.txt'), 'utf8')
                     );
-                    
+
                     assert.equal(result.reason, 'Document is missing attachment');
                 }
             }
