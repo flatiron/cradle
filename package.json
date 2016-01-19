@@ -35,7 +35,7 @@
     "test": "node test/helpers/seed.js && vows --spec"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=0.10.0"
   },
   "repository": {
     "type": "git",
