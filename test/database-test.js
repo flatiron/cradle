@@ -196,8 +196,20 @@ function shouldQueryCouch(name) {
                 return promise;
             },
             "returns a 200": macros.status(200)
-        }
-    }
+        },
+        "purging a document (PURGE)": {
+            topic: function (db) {
+                var promise = new(events.EventEmitter);
+                db.get('deleteme', function (e, res) {
+                    db.purge('deleteme', res.rev, function (e, res) {
+                        promise.emit('success', res);
+                    });
+                });
+                return promise;
+            },
+            "returns a 200": macros.status(200)
+        },
+    };
 }
 
 var cradle = require('../lib/cradle');
