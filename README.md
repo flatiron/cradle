@@ -1,6 +1,9 @@
 cradle
 ======
 
+[![Build Status](https://travis-ci.org/flatiron/cradle.svg?branch=master)](https://travis-ci.org/flatiron/cradle)
+[![Dependency Status](https://david-dm.org/flatiron/cradle.svg)](https://david-dm.org/flatiron/cradle)
+
 A high-level, caching, CouchDB client for Node.js
 
 introduction
@@ -59,7 +62,10 @@ Cradle's API builds right on top of Node's asynch API. Every asynch method takes
   new(cradle.Connection)('http://living-room.couch', 5984, {
       cache: true,
       raw: false,
-      forceSave: true
+      forceSave: true,
+      request: {
+        //Pass through configuration to `request` library for all requests on this connection.
+      }
   });
 ```
 
@@ -83,7 +89,9 @@ Note that you can also use `cradle.setup` to set a global configuration:
 
 ``` js
   var db = c.database('starwars');
-  db.create();
+  db.create(function(err){
+    /* do something if there's an error */
+  });
 ```
 
 #### checking for database existence ####
@@ -163,7 +171,7 @@ Lets suppose that you have a design document that you've created:
   db.save('_design/user', {
     views: {
       byUsername: {
-        map: 'function (doc) { if (doc.resource === 'User') { emit(doc.username, doc) } }'
+        map: 'function (doc) { if (doc.resource === "User") { emit(doc.username, doc) } }'
       }
     }
   });
@@ -172,7 +180,7 @@ Lets suppose that you have a design document that you've created:
 In CouchDB you could query this view directly by making an HTTP request to:
 
 ```
-  /_design/User/_view/byUsername/?key="luke"
+  /_design/user/_view/byUsername/?key="luke"
 ```
 
 In `cradle` you can make this same query by using the `.view()` database function:
@@ -203,7 +211,7 @@ db.save('_design/cars', {
 If you want all the cars made by *Ford* with a model name between *Rav4* and later (alphabetically sorted).
 In CouchDB you could query this view directly by making an HTTP request to:
 ```
-  /_design/User/_view/byMakeAndModel/?startkey=["Ford"]&endkey=["Ford", "\u9999"]
+  /_design/cars/_view/byMakeAndModel/?startkey=["Ford"]&endkey=["Ford", "\u9999"]
 ```
 
 In `cradle` you can make this same query by using the `.view()` database function with `startkey` and `endkey` options.
@@ -341,7 +349,7 @@ when saving a design document, cradle guesses you want to create a view, mention
     validate_doc_update:
       function (newDoc, oldDoc, usrCtx) {
         if (! /^(light|dark|neutral)$/.test(newDoc.force))
-          throw { error: "invalid value", reason:"force must be dark, light, or neutral" }
+          throw({forbidden: {error: "invalid value", reason: "force must be dark, light, or neutral"}})
       }
     }
   });
@@ -357,8 +365,17 @@ To remove a document, you call the `remove()` method, passing the latest documen
   });
 ```
 
-
 If `remove` is called without a revision, and the document was recently fetched from the database, it will attempt to use the cached document's revision, providing caching is enabled.
+
+### update handlers ###
+
+Update handlers can be used by calling the `update()` method, specifying the update handler name, and optionally the document id, the query object and the document body object. Only the update handler name is a required function parameter. Note that CouchDB is able to parse query options only if the URI-encoded length is less than 8197 characters. Use the body parameter for larger objects.
+
+``` js
+  db.update('my_designdoc/update_handler_name', 'luke', undefined, { my_param: false }, function (err, res) {
+      // Handle the response, specified by the update handler
+  });
+```
 
 Connecting with authentication and SSL
 --------------------------------------
@@ -366,6 +383,15 @@ Connecting with authentication and SSL
 ``` js
   var connection = new(cradle.Connection)('https://couch.io', 443, {
       auth: { username: 'john', password: 'fha82l' }
+  });
+```
+
+or providing a self signed CA certificate
+
+``` js
+  var connection = new(cradle.Connection)('https://couch.io', 443, {
+      auth: { username: 'john', password: 'fha82l' },
+      ca: fs.readFileSync('path_to_self_signed_ca.crt')
   });
 ```
 
@@ -617,6 +643,45 @@ Other API methods
 - `compact()`: Compact database
 - `viewCleanup()`: Cleanup old view data
 - `replicate(target, options)`: Replicate this database to `target`.
+
+### cache API ###
+
+When cache is enabled (default is true), a document is loaded into cradle's cache when it's retrieved or saved. In the event you wish to keep caching enabled, but invalidate specific items - such as those which may have been updated elsewhere. You can use the API below.
+
+**HAS**
+```js
+db.cache.has('docid');  //returns true if exists, false if not
+```
+
+**GET**
+```js
+db.cache.get('docid');  //returns the document from the cache
+```
+
+**PURGE**
+```js
+db.cache.purge('docid');  //remove this item from the cache
+```
+
+**SAVE**
+```js
+db.cache.save('docid', doc);  //saves the provided document into the cache
+```
+
+**Example**
+This is an example from an application using express to receive a post request when a documentid has been updated.
+```js
+app.post('/dbcache/:id', function (req, res) {
+  if(db.cache.has(req.params.id)) {
+      db.cache.purge(req.params.id);
+    res.send({ status:"ok", id: req.params.id, action: 'deleted'});
+  }
+  else {
+    res.send({ status:"not found", id: req.params.id, action: "none"}, 404);
+  }
+});
+```
+
 
 [0]: https://github.com/iriscouch/follow
 [1]: http://iriscouch.com
