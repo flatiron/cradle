@@ -501,8 +501,7 @@ var idAndRevData = {
 }
 var attachmentData = {
   name: attachmentName               // something like 'foo.txt'
-  'Content-Type': attachmentMimeType // something like 'text/plain', 'application/pdf', etc.
-  body: rawAttachmentBody            // something like 'foo document body text'
+  'Content-Type': attachmentMimeType // something like 'text/plain', 'application/pdf', 'image/jpeg' etc.
 }
 var readStream = fs.createReadStream('/path/to/file/')
 var writeStream  = db.saveAttachment(idData, attachmentData, callbackFunction)
@@ -515,32 +514,40 @@ When the streaming upload is complete the callback function will fire
 Attach a pdf file with the name 'bar.pdf' located at path './data/bar.pdf' to an existing document
 
 ```js
-var path = require('path')
 var fs = require('fs')
+
 // this document should already be saved in the couchdb database
 var doc = {
   _id: 'fooDocumentID',
   _rev: 'fooDocumentRev'
 }
+
+// the reference to the document in couch db that will be passed to the saveAttachment method
 var idData = {
   id: doc._id,
   rev: doc._rev
 }
-var filename = 'bar.pdf' // this is the filename that will be used in couchdb. It can be different from your source filename if desired
-var filePath = path.join(__dirname, 'data', 'bar.pdf')
-var readStream = fs.createReadStream
+
+// Read the file that you want to attach
+var filePath = 'data/bar.pdf'
+var readStream = fs.createReadStream(filePath)
+
+var attachmentName = 'bar.pdf' // this is the filename that will be used in couchdb. It can be different from your source filename if desired
+
 // note that there is no body field here since we are streaming the upload
 var attachmentData = {
-  name: 'fooAttachment.txt',
-  'Content-Type': 'text/plain'
+  name: attachmentName,
+  'Content-Type': 'application/pdf'
 }
-db.saveAttachment(idData, attachmentData, function (err, reply) {
+
+var writeStream = db.saveAttachment(idData, attachmentData, function (err, reply) {
   if (err) {
     console.dir(err)
     return
   }
   console.dir(reply)
-}, readStream)
+})
+readStream.pipe(writeStream)
 ```
 
 
