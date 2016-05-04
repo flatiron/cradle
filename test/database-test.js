@@ -196,6 +196,37 @@ function shouldQueryCouch(name) {
                 return promise;
             },
             "returns a 200": macros.status(200)
+        },
+        "getting database max revisions (GET)": {
+            topic: function(db) {
+                var promise = new(events.EventEmitter);
+                db.maxRevisions(function(e, res) {
+                    promise.emit('success', res);
+                });
+                return promise;
+            },
+            "returns default value (1000)": function(res) {
+                assert.equal(res, 1000);
+            }
+        },
+        "setting database max revisions to 10 (PUT)": {
+            topic: function(db) {
+                var promise = new(events.EventEmitter);
+                db.maxRevisions(10, function(err, putResponse) {
+                    db.maxRevisions(function(err1, getResponse) {
+                        promise.emit('success', putResponse, getResponse);
+                        /* Reset to default */
+                        db.maxRevisions(1000, function(e, res) {});
+                    });
+                });
+                return promise;
+            },
+            "returns true": function(err, putResponse) {
+                assert.isTrue(putResponse.ok);
+            },
+            "new value is assigned (10)": function(err, putResponse, getResponse) {
+                assert.equal(getResponse, 10);
+            }
         }
     }
 }

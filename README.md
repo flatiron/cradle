@@ -118,6 +118,35 @@ You can check if a database exists with the `exists()` method.
   db.destroy(cb);
 ```
 
+### set revisions limit ###
+Each database has a limit on how many revisions of a document can save.
+
+Default value: **1000**
+
+``` js
+  db.maxRevisions(4, function(err, res) {
+     if (err) {
+        console.log('error', err);
+     } else {
+        console.log('Revisions limit has changed');
+     }
+  });
+```
+
+### get revisions limit ###
+You can also get the current revisions limit
+
+``` js
+   db.maxRevisions(function(err, limit) {
+      if (err) {
+         console.log('error', err);
+      } else {
+         console.log('Revisions limit is: '+limit);
+      }
+   });
+```
+
+
 ### fetching a document _(GET)_ ###
 
 ``` js
@@ -650,6 +679,9 @@ Other API methods
 - `compact()`: Compact database
 - `viewCleanup()`: Cleanup old view data
 - `replicate(target, options)`: Replicate this database to `target`.
+- `maxRevisions(function(error, limit))`: Get revision limit
+- `maxRevisions(rev, function(error, result))`: Set revision limit
+
 
 ### cache API ###
 
