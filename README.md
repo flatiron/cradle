@@ -10,6 +10,13 @@ This is based on cradle 0.6.9 and could be out of date when you read this.
 The difference between this and cradle 0.6.9 (https://github.com/flatiron/cradle/) is the ability to have a host like "127.0.0.1/api/to/couchdb"
 See https://github.com/flatiron/cradle/pull/284 for the pull request on cradle that is included inhere.
 
+changes
+-------
+Added proxy capability
+Try/catch around JSON.parse in this.connection.rawRequest
+Update follow library to version 0.12.x
+
+
 introduction
 ------------
 
