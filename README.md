@@ -85,6 +85,20 @@ Note that you can also use `cradle.setup` to set a global configuration:
      cc = new(cradle.Connection)('173.45.66.92');
 ```
 
+### connecting to hosted database ###
+
+When connecting to a couchDB in the cloud eg Cloudant or Couchone. The options object needs to be configured as below.
+You must leave out the http or https in the connection string as cradle will add the appropriate one for you. 
+An Example connection is below
+
+    var db = new (cradle.Connection)('your_url','80',{
+                                                        ssl: true, 
+                                                        auth: {
+                                                          user: 'username', 
+                                                          pass: 'password'
+                                                          }
+                                                    }).database('database name');
+
 ### creating a database ###
 
 ``` js
@@ -145,6 +159,21 @@ You can also get the current revisions limit
       }
    });
 ```
+
+
+### check if database exits ###
+
+    db.exists(function(err, exists) {
+      if (err) {
+        console.log(err);
+      }
+
+      if (exists) {
+        console.log('db exists');
+      } else {
+        console.log('db does not exists');
+      }
+    };
 
 
 ### fetching a document _(GET)_ ###
