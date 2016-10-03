@@ -65,6 +65,24 @@ vows.describe('cradle/database/view').addBatch(
                 },
                 ['mike', 'bill'],
                 3
+            ),
+            'with leading slashes': shouldQueryView(
+                function(db) {
+                    db.view('/pigs/all', this.callback);
+                },
+                ['bill','mike','alex']
+            ),
+            'with trailing slashes': shouldQueryView(
+                function(db) {
+                    db.view('pigs/all/', this.callback);
+                },
+                ['bill','mike','alex']
+            ),
+            'with leading and trailing slashes': shouldQueryView(
+                function(db) {
+                    db.view('/pigs/all/', this.callback);
+                },
+                ['bill','mike','alex']
             )
         },
         // same as the above test, but with a temporary view
