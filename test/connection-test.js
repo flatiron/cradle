@@ -79,12 +79,12 @@ vows.describe('cradle/connection').addBatch({
             }
         },
         "with a the 'https' protocol": {
-            topic: function () { return new(cradle.Connection)("https://couch.io", 5984) },
+            topic: function () { return new(cradle.Connection)("https://couch.io") },
             "should set 'secure' to `true`": function (c) {
                 assert.equal(c.protocol, 'https');
                 assert.equal(c.options.secure, true);
                 assert.equal(c.host, 'couch.io');
-                assert.equal(c.port, 5984);
+                assert.equal(c.port, 443);
             }
         },
         "with the port as part of the URL": {
