@@ -71,6 +71,22 @@ function shouldQueryCouch(name) {
                 },
                 "creates a new document (201)": macros.status(201)
             },
+            "with indexes as root node" : {
+                topic: function (db) {
+                    db.save('_design/search_couch_lucene', {
+                        indexes: {
+                            search_name:{
+                                index: function(doc){index('default', doc.name);
+                                }
+                            }
+                        }
+                    }, this.callback);
+                },
+                "creates a new document (201)": macros.status(201),
+                "returns the revision": function (res) {
+                    assert.ok(res.rev);
+                }
+            },
             "with a '_design' id": {
                 topic: function (db) {
                     db.save('_design/horses', {
