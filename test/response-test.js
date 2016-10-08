@@ -7,6 +7,7 @@ var path = require('path'),
 
 var cradle = require('../lib/cradle');
 var document = { _rev: '2-76be', _id: 'f6av8', name: 'buzz', age: 99 };
+var view = { rows: [ { key: 'key1', value: 10 }, { key: 'key2', value: 0 }, { key: 'key3', value: false } ] };
 
 vows.describe('cradle/response').addBatch({
     'A cradle.Response instance': {
@@ -64,6 +65,31 @@ vows.describe('cradle/response').addBatch({
                     var json = JSON.parse(JSON.stringify(response));
                     assert.equal(json.age, 88);
                     assert.equal(json.hair, 'blue');
+                }
+            }
+        },
+        'from a view': {
+            topic: new(cradle.Response)(view),
+
+            'should correctly handle rows with falsy values in iterator': function (topic) {
+                var values = topic.toArray();
+
+                assert.lengthOf(values, 3);
+
+                for (var i=0; i < values.length; i++)
+                {
+                    var value = values[i];
+                    switch (i) {
+                        case 0:
+                            assert.equal(value, 10);
+                            break;
+                        case 1:
+                            assert.equal(value, 0);
+                            break;
+                        case 2:
+                            assert.equal(value, false);
+                            break;
+                    }
                 }
             }
         }
