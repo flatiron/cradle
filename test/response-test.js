@@ -8,6 +8,14 @@ var path = require('path'),
 var cradle = require('../lib/cradle');
 var document = { _rev: '2-76be', _id: 'f6av8', name: 'buzz', age: 99 };
 
+var clone = function (o) { return JSON.parse(JSON.stringify(o)); };
+
+var extend = function (o, key, value) {
+    var result = clone(o);
+    result[key] = value;
+    return result;
+};
+
 vows.describe('cradle/response').addBatch({
     'A cradle.Response instance': {
         'from a document': {
@@ -67,6 +75,19 @@ vows.describe('cradle/response').addBatch({
                 }
             }
         }
+    },
+
+    'A tricky cradle.Response instance': {
+        'from a document with an id property': {
+            topic: new(cradle.Response)(extend(document, 'id', '10009')),
+
+            'should have preserved the original id value': function (topic) {
+                assert.equal(topic.id, '10009');
+            },
+
+            'should keep the id property enumerable': function (topic) {
+                assert(Object.keys(topic).indexOf('id') >= 0);
+            }
+        }
     }
 }).export(module);
-
