@@ -25,6 +25,9 @@ vows.describe('cradle/connection').addBatch({
             assert.equal(c.options.milk, 'white');
             assert.equal(c.options.cache, true);
         },
+        "should be able to close the Connection": function (c) {
+            c.close();
+        },
         "with just a {} passed to a new Connection object": {
             topic: function () { return new(cradle.Connection)({milk: 'green'}) },
             "should override the defaults": function (c) {
