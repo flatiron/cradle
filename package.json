@@ -21,7 +21,7 @@
   ],
   "main": "./lib/cradle",
   "dependencies": {
-    "follow": "0.11.x",
+    "follow": "0.12.x",
     "request": "2.x.x",
     "vargs": "0.1.0"
   },
