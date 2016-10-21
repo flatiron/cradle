@@ -151,7 +151,7 @@ Modern async APIs
 
 If you prefer to use modern async Javascript with `Promise`s or `async/await`, you can use the new handy `promised-land` helper method as follows:
 
-```
+```js
 const cradle = require('cradle');
 const client = // configure client
 const db = // configure db from client
