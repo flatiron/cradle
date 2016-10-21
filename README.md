@@ -146,6 +146,28 @@ You can also get the current revisions limit
    });
 ```
 
+Modern async APIs
+---
+
+If you prefer to use modern async Javascript with `Promise`s or `async/await`, you can use the new handy `promised-land` helper method as follows:
+
+```js
+const cradle = require('cradle');
+const client = // configure client
+const db = // configure db from client
+
+const P = require('bluebird')
+const promisedLand = require('cradle/promised-land');
+const promised = promisedLand(P.promisifyAll, {cradle, client, db});
+```
+
+Note that you can pass in whatever method you prefer to wrap all Object functions in promises. Here we use the `promisifyAll` method from the [bluebird](https://github.com/petkaantonov/bluebird) promise library.
+
+You can now use the following promised enabled APIs as you see fit, even with `async/await` :)
+
+- `promised.db`
+- `promised.client`
+- `promised.cradle`
 
 ### fetching a document _(GET)_ ###
 
